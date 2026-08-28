@@ -94,15 +94,19 @@ class PropagateViewCopyPermutePass(ArmPass, ABC):
 
     def call(self, graph_module: torch.fx.GraphModule) -> PassResult:
         modified = False
+        needs_retrace = False
 
         result = self.fuse_horizontal(graph_module)
         graph_module = result.graph_module
         modified |= result.modified
+        needs_retrace |= result.modified
         result = self.fuse_vertical(graph_module)
         graph_module = result.graph_module
         modified |= result.modified
+        needs_retrace |= result.modified
         if result.modified:
             graph_module = self._retrace(graph_module)
+            needs_retrace = False
 
         while self.should_propagate():
             iteration_modified = False
@@ -112,23 +116,34 @@ class PropagateViewCopyPermutePass(ArmPass, ABC):
                         continue
                     if self._propagate(node):
                         iteration_modified = True
+                        graph_module = self._retrace(graph_module)
+                        needs_retrace = False
                         break
 
             if iteration_modified:
-                graph_module = self._retrace(graph_module)
-                result = self.fuse_horizontal(graph_module)
-                graph_module = result.graph_module
-                iteration_modified |= result.modified
-                result = self.fuse_vertical(graph_module)
-                graph_module = result.graph_module
-                iteration_modified |= result.modified
+                modified = True
+                continue
+
+            # Propagation and fusion form an alternating fixed point. If
+            # fusion changes the graph, the next iteration scans again for
+            # propagation opportunities enabled by the new topology.
+            result = self.fuse_horizontal(graph_module)
+            graph_module = result.graph_module
+            iteration_modified = result.modified
+            result = self.fuse_vertical(graph_module)
+            graph_module = result.graph_module
+            iteration_modified |= result.modified
 
             modified |= iteration_modified
-            if not iteration_modified:
-                break
+            if iteration_modified:
+                graph_module = self._retrace(graph_module)
+                needs_retrace = False
+                continue
+            break
 
         if modified:
-            graph_module = self._retrace(graph_module)
+            if needs_retrace:
+                graph_module = self._retrace(graph_module)
 
         return PassResult(graph_module, modified)
 
