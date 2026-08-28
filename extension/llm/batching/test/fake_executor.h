@@ -126,9 +126,8 @@ class FakeExecutor : public Executor {
   int fail_batches_from = -1;
   // Once a session has produced emit_before_stop tokens, every later one is
   // stop_token. Counted per session across the whole run, so a stop can be
-  // placed part way into a multi-token decode. A negative stop_token disables
-  // this.
-  Token stop_token = -1;
+  // placed part way into a multi-token decode. Unset disables this.
+  std::optional<Token> stop_token;
   int emit_before_stop = 0;
   // Tokens a decode step produces. 1 is a plain executor; more simulates a
   // speculative one answering with the run it accepted plus the model's own
@@ -223,8 +222,8 @@ class FakeExecutor : public Executor {
 
   Token next_token(SessionId session) {
     const int n = ++produced_[session];
-    if (stop_token >= 0 && n > emit_before_stop) {
-      return stop_token;
+    if (stop_token && n > emit_before_stop) {
+      return *stop_token;
     }
     auto it = sampling_.find(session);
     if (it == sampling_.end()) {
