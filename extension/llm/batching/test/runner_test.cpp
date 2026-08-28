@@ -713,6 +713,27 @@ TEST(GenerationTest, StopTokenAndBudgetAreAppliedToUpdates) {
   EXPECT_EQ(std::find(emitted.begin(), emitted.end(), 999), emitted.end());
 }
 
+TEST(SpeculativeTest, FirstBurstRecordsIntraBurstTokenLatencies) {
+  FakeExecutor executor;
+  executor.tokens_per_prefill = 3;
+  Fixture fixture(executor);
+  Session session = open(fixture.runner);
+  auto updates = std::make_shared<Updates>();
+
+  GenerationHandle handle = generate(session, tokens(2), config(3), updates);
+  ASSERT_TRUE(updates->wait());
+  handle.wait();
+
+  const auto metrics = handle.metrics();
+  EXPECT_EQ(metrics.n_generated_tokens, 3);
+  EXPECT_EQ(metrics.itl_count, 2);
+  EXPECT_EQ(metrics.itl_sum_us, 0);
+  EXPECT_EQ(metrics.itl_min_us, 0);
+  EXPECT_EQ(metrics.itl_max_us, 0);
+  EXPECT_EQ(
+      metrics.decode_tokens_per_sec(), std::numeric_limits<double>::infinity());
+}
+
 // Regression: the runner counts a step's produced tokens as far as the
 // executor committed them, so the next turn resumes past them rather than on
 // top of them. The last token of a run is not committed until it is fed back,

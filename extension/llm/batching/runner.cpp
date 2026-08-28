@@ -65,6 +65,7 @@ struct GenerationHandleState {
   std::condition_variable cv;
   bool done = false;
   FinishReason reason = FinishReason::Failed;
+  GenerationMetrics metrics;
   std::atomic<bool> cancelled{false};
 };
 
@@ -79,12 +80,14 @@ struct SessionStatus {
 
 bool publish_terminal_state(
     const std::shared_ptr<GenerationHandleState>& state,
-    FinishReason reason) {
+    FinishReason reason,
+    const GenerationMetrics& metrics) {
   std::lock_guard<std::mutex> lock(state->mutex);
   if (state->done) {
     return false;
   }
   state->reason = reason;
+  state->metrics = metrics;
   state->done = true;
   return true;
 }
@@ -94,7 +97,8 @@ void complete_terminal(
     const GenerationCallback& on_update,
     const std::vector<Token>& tokens,
     FinishReason reason) {
-  if (!publish_terminal_state(state, reason)) {
+  // Rejected before admission, so there is no timeline to report.
+  if (!publish_terminal_state(state, reason, GenerationMetrics{})) {
     return;
   }
   state->cv.notify_all();
@@ -135,6 +139,14 @@ FinishReason GenerationHandle::finish_reason() const {
   return state_->reason;
 }
 
+GenerationMetrics GenerationHandle::metrics() const {
+  if (!state_) {
+    return {};
+  }
+  std::lock_guard<std::mutex> lock(state_->mutex);
+  return state_->metrics;
+}
+
 // Everything the runner owns. Held by shared_ptr from both Runner and every
 // Session, so a Session outliving its Runner finds a stopped object rather
 // than a dangling one.
@@ -169,6 +181,11 @@ class RunnerImpl : public std::enable_shared_from_this<RunnerImpl> {
       GenConfig config,
       GenerationCallback on_update);
 
+  // Engine-thread data, so only stable once that thread is joined.
+  EngineMetrics metrics() const {
+    return metrics_;
+  }
+
  private:
   enum class Lifecycle { Running, Stopping, Stopped };
 
@@ -180,6 +197,10 @@ class RunnerImpl : public std::enable_shared_from_this<RunnerImpl> {
     // Shared with every handle, so cancelling needs no route back to the
     // runner and works after it is gone.
     std::shared_ptr<GenerationHandleState> state;
+    GenerationMetrics m;
+    // Engine-side only. An inter-token gap needs the previous delivery, and
+    // the published metrics keep only the summary, not the last timestamp.
+    MetricsTime last_token_at{};
   };
 
   // Start-only data. The sampling policy is installed on the executor at
@@ -270,11 +291,22 @@ class RunnerImpl : public std::enable_shared_from_this<RunnerImpl> {
       std::optional<FinishReason> reason);
 
   // Publish terminal state and invoke the callback for a detached generation.
+  //
+  // `on_engine_thread` is false only on the post-shutdown path out of
+  // generate_async(), which runs on the caller's thread. The engine may still
+  // be draining there, so that path publishes to the handle but must leave the
+  // engine's own counters alone.
   void complete_generation_(
       Generation generation,
       FinishReason reason,
+      bool on_engine_thread,
       std::vector<Token> final_tokens = {});
-  void complete_request_(GenerationRequest request, FinishReason reason);
+  void complete_request_(
+      GenerationRequest request,
+      FinishReason reason,
+      bool on_engine_thread);
+  // Engine thread only: rolls one finished generation into metrics_.
+  void record_completion_(const GenerationMetrics& m, FinishReason reason);
   void complete_active_generation_(
       SessionId session,
       FinishReason reason,
@@ -303,6 +335,7 @@ class RunnerImpl : public std::enable_shared_from_this<RunnerImpl> {
   // Kept after records close to enforce executor IDs are lifetime-unique.
   std::unordered_set<SessionId> issued_session_ids_;
   TaskId next_tid_ = 1;
+  EngineMetrics metrics_;
 
   std::thread engine_;
 };
@@ -385,6 +418,10 @@ Runner::~Runner() {
 
 void Runner::shutdown() {
   impl_->shutdown();
+}
+
+EngineMetrics Runner::metrics() const {
+  return impl_->metrics();
 }
 
 std::future<std::optional<Session>> Runner::open_session() {
@@ -485,7 +522,10 @@ void RunnerImpl::run_() {
 
   for (auto& entry : open_sessions) {
     if (entry.second) {
-      complete_generation_(std::move(*entry.second), FinishReason::Cancelled);
+      complete_generation_(
+          std::move(*entry.second),
+          FinishReason::Cancelled,
+          /*on_engine_thread=*/true);
     }
     executor_.close_session(entry.first);
   }
@@ -562,7 +602,10 @@ void RunnerImpl::process_pending_commands_() {
         // left would run against a session the executor has released.
         (void)scheduler_->cancel(cmd.session);
         if (active) {
-          complete_generation_(std::move(*active), FinishReason::Cancelled);
+          complete_generation_(
+              std::move(*active),
+              FinishReason::Cancelled,
+              /*on_engine_thread=*/true);
         }
         executor_.close_session(cmd.session);
         break;
@@ -588,9 +631,104 @@ bool RunnerImpl::execute_one_batch_() {
     return false;
   }
 
+  // Composition is read here, before to_batch_input moves the Inputs out and
+  // drops is_decode with the rest of the scheduling fields.
+  //
+  // Decode tasks are one sequence each. A session's prefill can arrive as
+  // several chunks which are not necessarily adjacent -- DecodeFirstScheduler
+  // rotates, taking one chunk per session per pass, so two sessions prefilling
+  // together interleave as A, B, A, B. Track every session seen rather than
+  // comparing with the previous one, which would count each chunk as a new
+  // sequence and charge the step to the generation repeatedly.
+  std::uint64_t decode_seqs = 0;
+  std::uint64_t prefill_seqs = 0;
+  std::uint64_t decode_tokens = 0;
+  std::uint64_t prefill_tokens = 0;
+  std::vector<SessionId> prefilling; // small: bounded by the batch width
+  const MetricsTime step_start = MetricsClock::now();
+  for (const Task& task : tasks) {
+    bool first_chunk = false;
+    if (task.is_decode) {
+      ++decode_seqs;
+      decode_tokens += task.input.size;
+    } else {
+      prefill_tokens += task.input.size;
+      first_chunk = std::find(
+                        prefilling.begin(),
+                        prefilling.end(),
+                        task.input.sid) == prefilling.end();
+      if (first_chunk) {
+        ++prefill_seqs;
+        prefilling.push_back(task.input.sid);
+      }
+    }
+    // Charge the step to the generation once, however many chunks it brought.
+    if (!task.is_decode && !first_chunk) {
+      continue;
+    }
+    auto session = sessions_.find(task.input.sid);
+    if (session == sessions_.end() || !session->second.active_generation) {
+      continue;
+    }
+    GenerationMetrics& m = session->second.active_generation->m;
+    if (!stamped(m.t_first_step)) {
+      m.t_first_step = step_start;
+    }
+    if (task.is_decode) {
+      ++m.n_decode_steps;
+    } else {
+      ++m.n_prefill_steps;
+    }
+  }
+  // Generations eligible for a decode slot, admitted or not. Past their first
+  // token, so a generation still prefilling is not counted as held back when
+  // it is simply busy elsewhere. Against decode_seqs this is what separates a
+  // scheduler holding work back from there being no work.
+  for (const auto& entry : sessions_) {
+    const auto& generation = entry.second.active_generation;
+    if (generation && stamped(generation->m.t_first_token)) {
+      ++metrics_.ready_total;
+    }
+  }
+
   BatchInput batch = to_batch_input(tasks);
   BatchOutput out;
   const bool ok = executor_.execute(batch, out);
+  const MetricsTime step_end = MetricsClock::now();
+
+  const std::int64_t latency = us_between(step_start, step_end);
+  ++metrics_.steps;
+  metrics_.decode_seqs_total += decode_seqs;
+  metrics_.prefill_seqs_total += prefill_seqs;
+  // Only what the model is known to have taken in. A failed execute leaves
+  // what it processed unknown -- that is why the batch is condemned and its
+  // sessions poisoned -- so counting the attempt as throughput would credit
+  // work that may never have happened. The time is still counted below,
+  // because it was really spent, and steps_failed records the attempt.
+  if (ok) {
+    metrics_.decode_tokens_total += decode_tokens;
+    metrics_.prefill_tokens_total += prefill_tokens;
+  }
+  metrics_.step_latency_sum_us += latency;
+  metrics_.step_latency_max_us =
+      std::max(metrics_.step_latency_max_us, latency);
+  if (!stamped(metrics_.t_first_step)) {
+    metrics_.t_first_step = step_start;
+  }
+  metrics_.t_last_step = step_end;
+  if (decode_tokens > 0) {
+    ++metrics_.steps_with_decode;
+    // Charged once per sequence: each of them waited this whole step.
+    metrics_.decode_wait_sum_us +=
+        latency * static_cast<std::int64_t>(decode_seqs);
+  }
+  if (prefill_tokens > 0) {
+    ++metrics_.steps_with_prefill;
+  }
+  if (!ok) {
+    ++metrics_.steps_failed;
+  }
+
   if (!is_running_()) {
     return true; // discard an in-flight result after the stop boundary
   }
@@ -713,6 +851,10 @@ GenerationHandle RunnerImpl::generate_async(
   request.generation.stop_tokens = std::move(config.stop_tokens);
   request.generation.on_update = std::move(on_update);
   request.generation.state = state;
+  // The caller's thread, before the request is queued: the wait a caller sees
+  // starts here, not when the engine gets round to it.
+  request.generation.m.sid = session;
+  request.generation.m.t_submit = MetricsClock::now();
 
   GenerationHandle handle(state);
   bool admitted = false;
@@ -733,18 +875,25 @@ GenerationHandle RunnerImpl::generate_async(
 
   // After shutdown nothing drains the inbox, so complete synchronously instead
   // of admitting a start that can never report completion.
-  complete_request_(std::move(request), FinishReason::Cancelled);
+  complete_request_(
+      std::move(request), FinishReason::Cancelled, /*on_engine_thread=*/false);
   return handle;
 }
 
 void RunnerImpl::start_generation_(GenerationRequest request) {
+  // Counted on arrival at the engine, not on successful install: every path
+  // below ends in complete_generation_, which counts a completion, so
+  // deferring this would let completions exceed starts.
+  ++metrics_.generations_started;
   if (!is_running_() || request.generation.state->cancelled.load()) {
-    complete_request_(std::move(request), FinishReason::Cancelled);
+    complete_request_(
+        std::move(request), FinishReason::Cancelled, /*on_engine_thread=*/true);
     return;
   }
   auto session = sessions_.find(request.session);
   if (session == sessions_.end()) {
-    complete_request_(std::move(request), FinishReason::Failed);
+    complete_request_(
+        std::move(request), FinishReason::Failed, /*on_engine_thread=*/true);
     return;
   }
   SessionRecord& record = session->second;
@@ -755,17 +904,24 @@ void RunnerImpl::start_generation_(GenerationRequest request) {
   if (request.generation.remaining_tokens <= 0 ||
       !valid_positioned_tokens(
           start_position, request.delta, record.pending ? 1u : 0u)) {
-    complete_request_(std::move(request), FinishReason::Failed);
+    complete_request_(
+        std::move(request), FinishReason::Failed, /*on_engine_thread=*/true);
     return;
   }
   // A step on this session failed mid-execute, so what the executor holds for
   // it is unknown. Anything built on that would be silently wrong.
   if (record.poisoned || record.active_generation) {
-    complete_request_(std::move(request), FinishReason::Failed);
+    complete_request_(
+        std::move(request), FinishReason::Failed, /*on_engine_thread=*/true);
     return;
   }
 
   executor_.set_sampling(request.session, request.sampling, request.seed);
+
+  // The prompt this generation was asked to process. Set before the move
+  // below, which leaves request.generation empty.
+  request.generation.m.n_prompt_tokens =
+      static_cast<std::int64_t>(request.delta->size());
 
   bool installed = false;
   {
@@ -777,7 +933,8 @@ void RunnerImpl::start_generation_(GenerationRequest request) {
   }
   if (!installed) {
     // Sampling began before the stop transition, but no task was submitted.
-    complete_request_(std::move(request), FinishReason::Cancelled);
+    complete_request_(
+        std::move(request), FinishReason::Cancelled, /*on_engine_thread=*/true);
     return;
   }
 
@@ -916,6 +1073,30 @@ void RunnerImpl::handle_output_(
     record.pending = emit.back();
   }
 
+  if (!emit.empty()) {
+    const MetricsTime now = MetricsClock::now();
+    generation.m.n_generated_tokens += static_cast<std::int64_t>(emit.size());
+    if (!stamped(generation.m.t_first_token)) {
+      generation.m.t_first_token = now;
+      // The first token's wait is TTFT. Further tokens in the same callback
+      // have zero caller-visible latency between them.
+      const std::int64_t intra_burst =
+          static_cast<std::int64_t>(emit.size()) - 1;
+      if (intra_burst > 0) {
+        generation.m.itl_count += intra_burst;
+        generation.m.itl_min_us = 0;
+      }
+    } else {
+      const std::int64_t gap = us_between(generation.last_token_at, now);
+      generation.m.itl_count += static_cast<std::int64_t>(emit.size());
+      generation.m.itl_sum_us += gap;
+      generation.m.itl_min_us = std::min(
+          generation.m.itl_min_us, emit.size() > 1 ? std::int64_t{0} : gap);
+      generation.m.itl_max_us = std::max(generation.m.itl_max_us, gap);
+    }
+    generation.last_token_at = now;
+  }
+
   if (ends) {
     complete_active_generation_(session_id, reason, std::move(emit));
     return;
@@ -964,7 +1145,9 @@ void RunnerImpl::deliver_update_(
 void RunnerImpl::complete_generation_(
     Generation generation,
     FinishReason reason,
+    bool on_engine_thread,
     std::vector<Token> final_tokens) {
+  generation.m.t_end = MetricsClock::now();
   bool published = false;
   {
     // The stop transition and terminal publication have a total order. User
@@ -981,20 +1164,56 @@ void RunnerImpl::complete_generation_(
       reason = FinishReason::Cancelled;
       final_tokens.clear();
     }
-    published = publish_terminal_state(generation.state, reason);
+    published = publish_terminal_state(generation.state, reason, generation.m);
   }
   if (!published) {
     return;
+  }
+  if (on_engine_thread) {
+    record_completion_(generation.m, reason);
   }
   generation.state->cv.notify_all();
   // Handle state is visible before user code inspects it from the callback.
   deliver_update_(generation, final_tokens, reason);
 }
 
+void RunnerImpl::record_completion_(
+    const GenerationMetrics& m,
+    FinishReason reason) {
+  ++metrics_.generations_completed;
+  switch (reason) {
+    case FinishReason::StopToken:
+      ++metrics_.finished_stop_token;
+      break;
+    case FinishReason::NewTokenLimit:
+      ++metrics_.finished_token_limit;
+      break;
+    case FinishReason::Cancelled:
+      ++metrics_.finished_cancelled;
+      break;
+    case FinishReason::Failed:
+      ++metrics_.finished_failed;
+      break;
+  }
+  metrics_.total_prompt_tokens += m.n_prompt_tokens;
+  metrics_.total_generated_tokens += m.n_generated_tokens;
+  // Zero for a generation that never reached a first token. Counted
+  // separately from completions so the mean divides by the samples it has,
+  // and so the minimum stays untouched when there are none.
+  const std::int64_t ttft = m.ttft_us();
+  if (ttft > 0) {
+    ++metrics_.ttft_count;
+    metrics_.ttft_sum_us += ttft;
+    metrics_.ttft_min_us = std::min(metrics_.ttft_min_us, ttft);
+    metrics_.ttft_max_us = std::max(metrics_.ttft_max_us, ttft);
+  }
+}
+
 void RunnerImpl::complete_request_(
     GenerationRequest request,
-    FinishReason reason) {
-  complete_generation_(std::move(request.generation), reason);
+    FinishReason reason,
+    bool on_engine_thread) {
+  complete_generation_(std::move(request.generation), reason, on_engine_thread);
 }
 
 void RunnerImpl::complete_active_generation_(
@@ -1014,7 +1233,11 @@ void RunnerImpl::complete_active_generation_(
   for (Task& task : scheduler_->cancel(session_id)) {
     (void)task;
   }
-  complete_generation_(std::move(active), reason, std::move(final_tokens));
+  complete_generation_(
+      std::move(active),
+      reason,
+      /*on_engine_thread=*/true,
+      std::move(final_tokens));
 }
 
 } // namespace batching

@@ -39,6 +39,7 @@
 #include <vector>
 
 #include <executorch/extension/llm/batching/executor.h>
+#include <executorch/extension/llm/batching/metrics.h>
 #include <executorch/extension/llm/batching/scheduler.h>
 #include <executorch/extension/llm/batching/types.h>
 
@@ -113,6 +114,10 @@ class GenerationHandle {
 
   // Meaningful once done().
   FinishReason finish_reason() const;
+
+  // This generation's timeline and counts, complete once done(). Empty on a
+  // default-constructed handle.
+  GenerationMetrics metrics() const;
 
  private:
   friend class RunnerImpl;
@@ -205,6 +210,11 @@ class Runner {
   // a later external call or destructor must join. Do not destroy the Runner
   // from its callback.
   void shutdown();
+
+  // What the engine measured. Read it after shutdown(): the counters are the
+  // engine thread's, so joining it is what makes them stable and visible. A
+  // call before then returns a torn snapshot.
+  EngineMetrics metrics() const;
 
  private:
   std::shared_ptr<RunnerImpl> impl_;

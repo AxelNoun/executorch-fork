@@ -129,9 +129,9 @@ class FakeExecutor : public Executor {
   // placed part way into a multi-token decode. Unset disables this.
   std::optional<Token> stop_token;
   int emit_before_stop = 0;
-  // Tokens a decode step produces. 1 is a plain executor; more simulates a
-  // speculative one answering with the run it accepted plus the model's own
-  // next token. Prefill always produces one whatever this is.
+  // Tokens an output-producing step returns. Values above 1 simulate a
+  // speculative executor answering with an accepted run plus the next token.
+  std::size_t tokens_per_prefill = 1;
   std::size_t tokens_per_decode = 1;
   // Malformed answers. An Output carries only the tokens an input produced, so
   // the only ways to break the contract are to produce none, or to answer for
@@ -211,7 +211,8 @@ class FakeExecutor : public Executor {
   // Task::is_decode. Good enough for a fake: the runner only ever feeds one
   // token to continue.
   std::vector<Token> produce(const Input& input) {
-    const std::size_t n = input.size == 1 ? tokens_per_decode : 1;
+    const std::size_t n =
+        input.size == 1 ? tokens_per_decode : tokens_per_prefill;
     std::vector<Token> produced;
     produced.reserve(n);
     for (std::size_t i = 0; i < n; ++i) {
