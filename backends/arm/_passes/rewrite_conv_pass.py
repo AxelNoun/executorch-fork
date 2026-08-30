@@ -121,14 +121,14 @@ class RewriteConvPass(ArmPass):
 
         return pad - mod_remainder
 
-    def _is_depthwise_conv2d(self, node: torch.fx.Node) -> bool:
+    def _is_depthwise_conv(self, node: torch.fx.Node) -> bool:
         if (
             node.op != "call_function"
             or node.target != exir_ops.edge.aten.convolution.default
         ):
             return False
         input_tensor = get_first_fake_tensor(node.all_input_nodes[0])
-        if len(input_tensor.shape) != 4:
+        if len(input_tensor.shape) not in (3, 4):
             return False
         groups = node.args[-1]
         in_channels = input_tensor.shape[1]
@@ -558,8 +558,26 @@ class RewriteConvPass(ArmPass):
         input_node: torch.fx.Node,
         input_fake_tensor: FakeTensor,
         dims: tuple[int, ...],
+        squeeze_spatial: bool = False,
     ) -> tuple[torch.fx.Node, FakeTensor]:
-        """Insert the mandatory TOSA-to-Edge output layout permutation."""
+        """Insert the mandatory TOSA-to-Edge output layout permutation.
+
+        ``squeeze_spatial`` drops the singleton spatial dimension a rank-three
+        convolution carries through TOSA Conv2d, so the layout permutation is
+        emitted in the rank-three domain the exported graph expects.
+
+        """
+        if squeeze_spatial:
+            squeezed_fake_tensor = cast(FakeTensor, input_fake_tensor.squeeze(1))
+            with graph_module.graph.inserting_after(input_node):
+                input_node = create_node(
+                    graph=graph_module.graph,
+                    op_target=exir_ops.edge.aten.view_copy.default,
+                    args=(input_node, list(squeezed_fake_tensor.shape)),
+                    from_node=source_node,
+                )
+            input_node.meta["val"] = squeezed_fake_tensor
+            input_fake_tensor = squeezed_fake_tensor
         with graph_module.graph.inserting_after(input_node):
             output = create_node(
                 graph=graph_module.graph,
@@ -579,6 +597,7 @@ class RewriteConvPass(ArmPass):
         tosa_node_fake_tensor: torch.Tensor,
         default_rescale: torch.fx.Node,
         post_permute_dims: tuple[int, ...],
+        squeeze_spatial: bool = False,
     ) -> None:
         """Route A16W8 convolution users through the required output types.
 
@@ -652,6 +671,7 @@ class RewriteConvPass(ArmPass):
                 int32_user,
                 int32_fake_tensor,
                 post_permute_dims,
+                squeeze_spatial,
             )
             for user in previous_users:
                 user.replace_input_with(int32_user, int32_output)
@@ -702,6 +722,7 @@ class RewriteConvPass(ArmPass):
                 widened_rescale,
                 widened_fake_tensor,
                 post_permute_dims,
+                squeeze_spatial,
             )
 
             # Clone the source permutation for the widened branch. The
@@ -911,7 +932,70 @@ class RewriteConvPass(ArmPass):
                 dilation = tuple(dilation_list)
                 pad = pad_attr
 
-                if self._is_conv3d(len(input_shape), group):
+                if spatial_rank == 1:
+                    target_op = (
+                        exir_ops.backend.tosa.DEPTHWISE_CONV2D.default
+                        if self._is_depthwise_conv(node)
+                        else exir_ops.backend.tosa.CONV2D.default
+                    )
+                    pre_permute_dims = (0, 2, 1)
+                    post_permute_dims = (0, 2, 1)
+                    with graph_module.graph.inserting_before(node):
+                        x = create_node(
+                            graph=graph_module.graph,
+                            op_target=exir_ops.edge.aten.permute_copy.default,
+                            args=(x, list(pre_permute_dims)),
+                            from_node=node,
+                        )
+                        permuted_input_fake = permute_fake_tensor_metadata(
+                            input_fake_tensor, pre_permute_dims
+                        )
+                        x.meta["val"] = permuted_input_fake
+                        input_tensor_for_tosa_fake = permuted_input_fake.unsqueeze(1)
+                        x = create_node(
+                            graph=graph_module.graph,
+                            op_target=exir_ops.edge.aten.view_copy.default,
+                            args=(x, list(input_tensor_for_tosa_fake.shape)),
+                            from_node=node,
+                        )
+                        x.meta["val"] = input_tensor_for_tosa_fake
+
+                    kernel_width = weight_shape[2]
+                    if target_op == exir_ops.backend.tosa.DEPTHWISE_CONV2D.default:
+                        in_channels = input_fake_tensor.shape[1]
+                        channel_multiplier = weight_shape[0] // in_channels
+                        weight = self._rewrite_weight(
+                            graph_module,
+                            weight,
+                            node,
+                            permute_dims=(1, 2, 0),
+                            name_suffix="hwicm",
+                            reshape_dims=(
+                                1,
+                                kernel_width,
+                                in_channels,
+                                channel_multiplier,
+                            ),
+                        )
+                    else:
+                        weight = self._rewrite_weight(
+                            graph_module,
+                            weight,
+                            node,
+                            permute_dims=(0, 2, 1),
+                            name_suffix="ohwi",
+                            reshape_dims=(
+                                weight_shape[0],
+                                1,
+                                kernel_width,
+                                weight_shape[1],
+                            ),
+                        )
+                    weight_fake_tensor = get_first_fake_tensor(weight)
+                    stride = (1, stride[0])
+                    dilation = (1, dilation[0])
+                    pad = [0, 0, pad[0], pad[1]]
+                elif self._is_conv3d(len(input_shape), group):
                     target_op = exir_ops.backend.tosa.CONV3D.default
                     pre_permute_dims = ODHWI_ORDER
                     post_permute_dims = ODHWI_INVERSE_ORDER
@@ -934,7 +1018,7 @@ class RewriteConvPass(ArmPass):
                         name_suffix="odhwi",
                     )
                     weight_fake_tensor = get_first_fake_tensor(weight)
-                elif self._is_depthwise_conv2d(node):
+                elif self._is_depthwise_conv(node):
                     target_op = exir_ops.backend.tosa.DEPTHWISE_CONV2D.default
                     pre_permute_dims = NHWC_ORDER
                     post_permute_dims = NHWC_INVERSE_ORDER
@@ -1039,7 +1123,28 @@ class RewriteConvPass(ArmPass):
 
             if post_permute_dims is None:
                 raise RuntimeError("Expected post permute dims for explicit layout")
+            output_conversion_node = node_replacement
             post_permute_input = node_replacement
+            squeeze_view: torch.fx.Node | None = None
+            if spatial_rank == 1:
+                squeezed_output_fake = cast(
+                    FakeTensor, node_replacement_fake_tensor.squeeze(1)
+                )
+                special_dtype = node_replacement.meta.get(TosaSpecialDtype.meta_key())
+                with graph_module.graph.inserting_after(node_replacement):
+                    node_replacement = create_node(
+                        graph=graph_module.graph,
+                        op_target=exir_ops.edge.aten.view_copy.default,
+                        args=(node_replacement, list(squeezed_output_fake.shape)),
+                        from_node=node,
+                    )
+                node_replacement.meta["val"] = squeezed_output_fake
+                if special_dtype:
+                    node_replacement.meta[TosaSpecialDtype.meta_key()] = special_dtype
+                squeeze_view = node_replacement
+                post_permute_input = node_replacement
+                node_replacement_fake_tensor = squeezed_output_fake
+
             with graph_module.graph.inserting_after(node_replacement):
                 node_replacement = create_node(
                     graph=graph_module.graph,
@@ -1068,8 +1173,9 @@ class RewriteConvPass(ArmPass):
                     node,
                     tosa_op,
                     tosa_node_fake_tensor,
-                    post_permute_input,
+                    output_conversion_node,
                     post_permute_dims,
+                    spatial_rank == 1,
                 )
                 # Only users not moved to widened branches remain on the
                 # source node. Route those through the declared INT16 output,
@@ -1078,7 +1184,9 @@ class RewriteConvPass(ArmPass):
                     node.replace_all_uses_with(node_replacement)
                 else:
                     graph_module.graph.erase_node(node_replacement)
-                    graph_module.graph.erase_node(post_permute_input)
+                    if squeeze_view is not None:
+                        graph_module.graph.erase_node(squeeze_view)
+                    graph_module.graph.erase_node(output_conversion_node)
             else:
                 node.replace_all_uses_with(node_replacement)
 

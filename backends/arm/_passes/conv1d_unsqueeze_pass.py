@@ -7,6 +7,8 @@
 
 from typing import Set, Type
 
+import torch
+
 from executorch.backends.arm._passes import ArmOpTargetedPass
 from executorch.backends.arm._passes.convert_squeezes_to_view import (
     ConvertSqueezesToViewPass,
@@ -21,7 +23,14 @@ from executorch.exir.pass_base import ExportPass
 
 
 class Conv1dUnsqueezePass(ConvertConv1dToConv2dPass, ArmOpTargetedPass):
-    """Arm wrapper for the shared Conv1d-to-Conv2d transform."""
+    """Convert ConvTranspose1d into ConvTranspose2d.
+
+    Forward Conv1d is lowered atomically by ``RewriteConvPass`` so its layout
+    transforms can be emitted in the rank-3 domain. TOSA has no native
+    transpose-convolution 1D operator, so this pass retains the rank-4
+    expansion for ConvTranspose1d.
+
+    """
 
     _passes_required_after: Set[Type[ExportPass]] = {
         ConvertSqueezesToViewPass,
@@ -29,3 +38,11 @@ class Conv1dUnsqueezePass(ConvertConv1dToConv2dPass, ArmOpTargetedPass):
         SizeAdjustInputPass,
     }
     target_ops = (exir_ops.edge.aten.convolution.default,)
+
+    def _conv1d_weight_node(self, node: torch.fx.Node) -> torch.fx.Node | None:
+        weight_node = super()._conv1d_weight_node(node)
+        # A non-None weight node means the base pass matched the full nine-arg
+        # convolution signature, so args[6] (transposed) is always present.
+        if weight_node is None or not node.args[6]:
+            return None
+        return weight_node

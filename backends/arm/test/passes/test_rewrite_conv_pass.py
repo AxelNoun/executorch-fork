@@ -90,6 +90,18 @@ class A16W8Int32Consumer(nn.Module):
         return self.conv(x) + x
 
 
+class A16W8Conv1dInt32Consumer(nn.Module):
+    """Exercise a rank-three A16W8 convolution consumed only by an INT32 add."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.conv = nn.Conv1d(4, 4, 1)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Feed the convolution output directly to a residual addition."""
+        return self.conv(x) + x
+
+
 class A16W8MixedConsumer(nn.Module):
     """Exercise a shared A16W8 convolution output with mixed consumers."""
 
@@ -296,6 +308,27 @@ class DepthwiseConv2dBiasModule(torch.nn.Module):
         return self.conv(x)
 
 
+class Conv1dBiasModule(torch.nn.Module):
+    def __init__(self, depthwise: bool = False) -> None:
+        super().__init__()
+        groups = 4 if depthwise else 1
+        out_channels = 8 if depthwise else 6
+        self.conv = torch.nn.Conv1d(
+            4,
+            out_channels,
+            kernel_size=3,
+            padding=1,
+            groups=groups,
+            bias=True,
+        )
+
+    def get_inputs(self) -> tuple[torch.Tensor]:
+        return (torch.randn(1, 4, 8),)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.conv(x)
+
+
 class Conv3dBiasModule(torch.nn.Module):
     def __init__(self) -> None:
         super().__init__()
@@ -491,6 +524,37 @@ def test_rewrite_conv_a16w8_preserves_int32_for_int32_consumers() -> None:
     assert direct_int32_rescales[0].args[2] == pytest.approx(expected_int32_scales[0])
 
 
+def test_rewrite_conv1d_a16w8_squeezes_int32_branch_to_rank3() -> None:
+    """Test that the widened INT32 branch of a Conv1d lands back in rank three.
+
+    The INT32 branch forks off the INT48 accumulator and needs its own layout
+    boundary. TOSA Conv2d produces a rank-four NHWC tensor for a rank-three
+    convolution, so the branch must drop the singleton spatial dimension before
+    the rank-three output permutation.
+
+    """
+    inputs = (torch.randn(1, 4, 8),)
+    gm, expected_int32_scales = _rewrite_a16w8_convs(A16W8Conv1dInt32Consumer(), inputs)
+
+    direct_int32_rescales = [
+        node
+        for node in gm.graph.nodes
+        if node.op == "call_function"
+        and node.target == exir_ops.backend.tosa.RESCALE.default
+        and node.args[1] == torch.int32
+        and node.all_input_nodes[0].target == exir_ops.backend.tosa.CONV2D.default
+    ]
+    assert len(direct_int32_rescales) == len(expected_int32_scales) == 1
+    assert direct_int32_rescales[0].args[2] == pytest.approx(expected_int32_scales[0])
+
+    (branch_view,) = tuple(direct_int32_rescales[0].users)
+    assert branch_view.target == exir_ops.edge.aten.view_copy.default
+    assert branch_view.meta["val"].shape == torch.Size((1, 8, 4))
+    (branch_permute,) = tuple(branch_view.users)
+    assert branch_permute.target == exir_ops.edge.aten.permute_copy.default
+    assert branch_permute.meta["val"].shape == torch.Size((1, 4, 8))
+
+
 def test_rewrite_conv_a16w8_preserves_int32_after_permute() -> None:
     r"""Test that an indirect INT32 consumer keeps a widened branch.
 
@@ -531,6 +595,62 @@ def test_rewrite_conv_a16w8_preserves_int32_after_permute() -> None:
                 )
 
     assert len(widened_paths) == 1
+
+
+@pytest.mark.parametrize(
+    "depthwise,target_op,expected_weight_shape,expected_output_shape",
+    [
+        (
+            False,
+            exir_ops.backend.tosa.CONV2D.default,
+            (6, 1, 3, 4),
+            (1, 6, 8),
+        ),
+        (
+            True,
+            exir_ops.backend.tosa.DEPTHWISE_CONV2D.default,
+            (1, 3, 4, 2),
+            (1, 8, 8),
+        ),
+    ],
+)
+def test_rewrite_conv1d_emits_atomic_rank3_layout_boundaries(
+    depthwise: bool,
+    target_op,
+    expected_weight_shape: tuple[int, ...],
+    expected_output_shape: tuple[int, ...],
+) -> None:
+    module = Conv1dBiasModule(depthwise).eval()
+    edge_program = to_edge(export(module, module.get_inputs())).exported_program()
+
+    with TosaLoweringContext(_compile_spec().tosa_spec):
+        result = RewriteConvPass(edge_program)(edge_program.graph_module)
+        assert result is not None
+        graph_module = result.graph_module
+
+    conv = _get_call_function_node(graph_module, target_op)
+    input_view = conv.args[0]
+    assert isinstance(input_view, torch.fx.Node)
+    assert input_view.target == exir_ops.edge.aten.view_copy.default
+    input_permute = input_view.args[0]
+    assert isinstance(input_permute, torch.fx.Node)
+    assert input_permute.target == exir_ops.edge.aten.permute_copy.default
+    assert input_permute.args[1] == [0, 2, 1]
+    assert input_view.meta["val"].shape == torch.Size((1, 1, 8, 4))
+
+    weight = conv.args[1]
+    assert isinstance(weight, torch.fx.Node)
+    assert weight.meta["val"].shape == torch.Size(expected_weight_shape)
+
+    output_view = next(
+        node
+        for node in graph_module.graph.nodes
+        if node.target == exir_ops.edge.aten.view_copy.default and node.args[0] is conv
+    )
+    output_permute = next(iter(output_view.users))
+    assert output_permute.target == exir_ops.edge.aten.permute_copy.default
+    assert output_permute.args[1] == [0, 2, 1]
+    assert output_permute.meta["val"].shape == torch.Size(expected_output_shape)
 
 
 @pytest.mark.skipif(not _VGF_ENABLED, reason="VGF not enabled")
