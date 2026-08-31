@@ -49,6 +49,46 @@ python3 -m examples.portable.scripts.export --model_name="$MODEL_NAME" --segment
 python3 -m examples.apple.coreml.scripts.export --model_name="$MODEL_NAME"
 python3 -m examples.xnnpack.aot_compiler --model_name="$MODEL_NAME" --delegate
 
+# No generic examples/ entry point takes a model name and lowers it to MLX, so do
+# it here. Lowering is ahead of time and imports no mlx runtime package, so it runs
+# on this runner like the others. Write the file directly and assert MLX actually
+# claimed part of the graph: the partitioner only warns when it delegates nothing,
+# so a program with zero MLX segments would otherwise be staged under an MLX name.
+python3 - "$MODEL_NAME" <<'PY'
+import json
+import sys
+
+import torch
+from executorch.backends.mlx import MLXPartitioner
+from executorch.examples.models import MODEL_NAME_TO_MODEL
+from executorch.examples.models.model_factory import EagerModelFactory
+from executorch.exir import EdgeCompileConfig, to_edge_transform_and_lower
+from executorch.exir._serialize._flatbuffer import _program_flatbuffer_to_json
+
+model_name = sys.argv[1]
+model, example_inputs, _, _ = EagerModelFactory.create_model(
+    *MODEL_NAME_TO_MODEL[model_name]
+)
+program = to_edge_transform_and_lower(
+    torch.export.export(model.eval(), example_inputs),
+    partitioner=[MLXPartitioner()],
+    compile_config=EdgeCompileConfig(_skip_dim_order=True),
+).to_executorch()
+path = f"{model_name}_mlx.pte"
+with open(path, "wb") as file:
+    program.write_to_file(file)
+
+program_json = json.loads(_program_flatbuffer_to_json(open(path, "rb").read()))
+segments = sum(
+    "mlx" in delegate.get("id", "").lower()
+    for plan in program_json.get("execution_plan", [])
+    for delegate in plan.get("delegates", [])
+)
+if segments == 0:
+    raise SystemExit(f"error: {path} has no MLX delegate segments")
+print(f"{path}: {segments} MLX delegate segment(s)")
+PY
+
 mkdir -p "$APP_PATH/Resources/Models/MobileNet/"
 mv $MODEL_NAME*.pte "$APP_PATH/Resources/Models/MobileNet/"
 
