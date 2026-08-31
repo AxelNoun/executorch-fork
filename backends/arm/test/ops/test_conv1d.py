@@ -118,6 +118,11 @@ class Conv1d(torch.nn.Module):
         return x
 
 
+class Conv1dWithLeakyReLU(Conv1d):
+    def forward(self, x):
+        return torch.nn.functional.leaky_relu(super().forward(x), negative_slope=0.0)
+
+
 conv1d_2_3x2x40_nobias = Conv1d(
     in_channels=2,
     out_channels=3,
@@ -327,6 +332,18 @@ def test_convolution_1d_tosa_INT(test_data):
     pipeline.run()
 
 
+def test_convolution_1d_with_leaky_relu_tosa_INT():
+    model = Conv1dWithLeakyReLU()
+    pipeline = TosaPipelineINT[input_t](
+        model,
+        model.get_inputs(),
+        [aten_op, "torch.ops.aten.leaky_relu.default"],
+        [exir_op, "executorch_exir_dialects_edge__ops_aten_leaky_relu_default"],
+        qtol=1,
+    )
+    pipeline.run()
+
+
 @common.parametrize("test_data", test_data_INT)
 @common.XfailIfNoCorstone300
 def test_convolution_1d_u55_INT(test_data):
@@ -397,5 +414,37 @@ def test_convolution_1d_vgf_quant_a8w4(test_data):
     )
     pipeline.quantizer.set_global(
         get_symmetric_a8w4_quantization_config(is_per_channel=per_channel_quantization)
+    )
+    pipeline.run()
+
+
+@common.parametrize("test_data", test_data_INT)
+@common.XfailIfNoCorstone300
+def test_conv1d_a16w8_u55_INT(test_data):
+    model, per_channel_quantization = test_data()
+    pipeline = EthosU55PipelineINT[input_t](
+        model,
+        model.get_inputs(),
+        aten_op,
+        exir_op,
+        a16w8_quantization=True,
+        symmetric_io_quantization=True,
+        per_channel_quantization=per_channel_quantization,
+    )
+    pipeline.run()
+
+
+@common.parametrize("test_data", test_data_INT)
+@common.XfailIfNoCorstone320
+def test_conv1d_a16w8_u85_INT(test_data):
+    model, per_channel_quantization = test_data()
+    pipeline = EthosU85PipelineINT[input_t](
+        model,
+        model.get_inputs(),
+        aten_op,
+        exir_op,
+        a16w8_quantization=True,
+        symmetric_io_quantization=True,
+        per_channel_quantization=per_channel_quantization,
     )
     pipeline.run()
