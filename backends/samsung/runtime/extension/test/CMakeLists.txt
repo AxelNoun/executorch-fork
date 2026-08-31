@@ -22,6 +22,6 @@ include(${EXECUTORCH_ROOT}/tools/cmake/Test.cmake)
 set(_test_srcs exynos_file_data_loader_test.cpp)
 
 et_cxx_test(
-  extension_data_loader_test SOURCES ${_test_srcs} EXTRA_LIBS
-  extension_data_loader
+  exynos_file_data_loader_test SOURCES ${_test_srcs} EXTRA_LIBS enn_backend
+                                                               enn_logging
 )
