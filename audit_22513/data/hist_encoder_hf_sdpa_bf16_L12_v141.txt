@@ -1,0 +1,2 @@
+
+D0 chain0(main) (378 instr): TransposeNode=125, AddmmNode=72, ReshapeNode=50, AddNode=27, LayerNormNode=25, IdCopyNode=25, GeluNode=14, AsTypeNode=12, MultiplyNode=12, SdpaNode=12, Conv1DNode=2, ARangeNode=1, TakeNode=1

@@ -1,0 +1,5 @@
+non fusionné phone 'p'         : 60 command buffers pour 12 couches ; volume alloué total 4911 MB ; fenêtre de 11 cbufs max = 1008 MB ; médiane ops/cbuf=1
+non fusionné base/pro 'g'      : 60 command buffers pour 12 couches ; volume alloué total 4911 MB ; fenêtre de 11 cbufs max = 1008 MB ; médiane ops/cbuf=1
+non fusionné max/ultra 's'/'d' : 49 command buffers pour 12 couches ; volume alloué total 4911 MB ; fenêtre de 11 cbufs max = 1177 MB ; médiane ops/cbuf=3
+SDPA fusionné phone 'p'       : 13 command buffers pour 12 couches ; volume alloué total 968 MB ; fenêtre de 11 cbufs max = 823 MB ; médiane ops/cbuf=20
+SDPA fusionné base/pro 'g'    : 12 command buffers pour 12 couches ; volume alloué total 968 MB ; fenêtre de 11 cbufs max = 887 MB ; médiane ops/cbuf=22

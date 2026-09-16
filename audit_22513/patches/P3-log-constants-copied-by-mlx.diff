@@ -1,0 +1,68 @@
+diff --git a/backends/mlx/runtime/MLXExecutor.h b/backends/mlx/runtime/MLXExecutor.h
+index eea49e40eb..bcff945800 100644
+--- a/backends/mlx/runtime/MLXExecutor.h
++++ b/backends/mlx/runtime/MLXExecutor.h
+@@ -20,6 +20,9 @@
+ #include <executorch/runtime/core/named_data_map.h>
+ #include <executorch/runtime/core/result.h>
+ 
++#include <unistd.h>
++
++#include <cstdint>
+ #include <iomanip>
+ #include <iostream>
+ #include <optional>
+@@ -755,6 +758,16 @@ inline void load_constants(
+     }
+   }
+ 
++  // Zero-copy bookkeeping. MLX wraps the pointer with
++  // newBufferWithBytesNoCopy, which Apple documents as requiring a
++  // page-aligned pointer and a page-aligned length, and silently copies
++  // (mlx/array.cpp, array(void*, ...) constructor) when Metal returns nil.
++  // A copied constant is then resident twice: once in the FreeableBuffer kept
++  // in constant_buffers, once in MLX's copy.
++  const uintptr_t page = static_cast<uintptr_t>(getpagesize());
++  size_t copied_count = 0;
++  size_t copied_bytes = 0;
++
+   // Load each constant tensor by name
+   for (uint32_t tid = 0; tid < program.num_constant_tensors; ++tid) {
+     // Get tensor metadata
+@@ -808,6 +821,20 @@ inline void load_constants(
+         // MLXHandle::constant_buffers
+       };
+       array arr = array(data_ptr, shape, dtype, deleter);
++      // Exact detection rather than a prediction: a wrapped buffer's
++      // contents() is the pointer we passed in, a copy is not.
++      if (arr.data<const void>() != data_ptr) {
++        ++copied_count;
++        copied_bytes += buffer.size();
++        ET_LOG(
++            Debug,
++            "MLX constant '%s' copied (%zu bytes): ptr %% page = %zu, "
++            "size %% page = %zu",
++            name->c_str(),
++            buffer.size(),
++            static_cast<size_t>(reinterpret_cast<uintptr_t>(data_ptr) % page),
++            static_cast<size_t>(buffer.size() % page));
++      }
+       store.add(std::move(arr));
+     } else {
+       // No deleter = MLX copies the data into its own memory
+@@ -815,6 +842,15 @@ inline void load_constants(
+     }
+   }
+ 
++  if constexpr (kEnableConstantZeroCopy) {
++    ET_LOG(
++        Info,
++        "MLX constants: %u loaded, %zu copied by MLX (%zu bytes resident twice)",
++        program.num_constant_tensors,
++        copied_count,
++        copied_bytes);
++  }
++
+   // Evaluate all constants immediately to prepare Metal buffers
+   // This trades init time for faster first inference
+   eval(store.tensors);

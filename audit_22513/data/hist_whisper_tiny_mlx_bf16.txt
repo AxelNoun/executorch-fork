@@ -1,0 +1,4 @@
+
+D0 chain0(main) (265 instr): TransposeNode=73, AddmmNode=41, ReshapeNode=32, AsTypeNode=28, IdCopyNode=21, AddNode=13, LayerNormNode=13, AddIntNode=12, SliceUpdateNode=8, SliceNode=8, SdpaNode=8, GeluNode=4, TakeNode=3, ItemIntNode=1
+
+D1 chain0(main) (204 instr): TransposeNode=52, AsTypeNode=34, AddmmNode=33, ReshapeNode=20, AddNode=13, LayerNormNode=9, IdCopyNode=9, MultiplyNode=8, GeluNode=6, SoftmaxNode=4, Conv1DNode=3, PadNode=2, PowerNode=1, SumNode=1, SqrtNode=1, ClipNode=1, LogNode=1, MaxNode=1, SubtractNode=1, MaximumNode=1, DivideNode=1, SliceNode=1, ExpandDimsNode=1

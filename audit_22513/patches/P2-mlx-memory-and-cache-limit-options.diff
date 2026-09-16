@@ -1,0 +1,54 @@
+diff --git a/backends/mlx/runtime/MLXBackend.cpp b/backends/mlx/runtime/MLXBackend.cpp
+index 0689388412..dd21004dd9 100644
+--- a/backends/mlx/runtime/MLXBackend.cpp
++++ b/backends/mlx/runtime/MLXBackend.cpp
+@@ -286,6 +286,20 @@ class MLXBackend final : public ::executorch::runtime::BackendInterface {
+         handle->clear_cache_interval_ = spec.get();
+       }
+ 
++      // Process-global MLX memory limits (see backend_options.h). Applied
++      // under mlx_global_mutex() so they cannot race another handle's
++      // submission; MB units because runtime specs carry a 32-bit int.
++      if (auto spec = context.get_runtime_spec<int>(kMemoryLimitMbKey);
++          spec.ok() && spec.get() > 0) {
++        ::mlx::core::set_memory_limit(
++            static_cast<size_t>(spec.get()) * (size_t{1} << 20));
++      }
++      if (auto spec = context.get_runtime_spec<int>(kCacheLimitMbKey);
++          spec.ok() && spec.get() >= 0) {
++        ::mlx::core::set_cache_limit(
++            static_cast<size_t>(spec.get()) * (size_t{1} << 20));
++      }
++
+       if (!processed || !processed->data() || processed->size() == 0) {
+         throw std::runtime_error("init: null or empty delegate payload");
+       }
+diff --git a/backends/mlx/runtime/backend_options.h b/backends/mlx/runtime/backend_options.h
+index 2f96ce9352..a81f47ae98 100644
+--- a/backends/mlx/runtime/backend_options.h
++++ b/backends/mlx/runtime/backend_options.h
+@@ -42,6 +42,24 @@ inline constexpr char kClearCacheIntervalKey[] = "clear_cache_interval";
+ // errors otherwise). Saves one full mutable-buffer (KV-cache) copy per handle.
+ inline constexpr char kSkipMutableBufferInitKey[] = "skip_mutable_buffer_init";
+ 
++// Per-model runtime-spec keys (int, mebibytes). Forwarded once, at init(), to
++// mlx::core::set_memory_limit() / set_cache_limit(). MLX allocates every
++// intermediate of a submitted graph at CPU encode speed and only frees it when
++// the GPU command buffer that reads it completes; the memory limit makes
++// eval_impl() wait for in-flight command buffers whenever active memory
++// exceeds it (mlx/transforms.cpp, MAX_ACTIVE_TASKS block), which bounds peak
++// footprint continuously rather than on average like clear_cache_interval.
++// MLX's active memory counts the wrapped constants too, so the limit has to
++// leave room for the weights of every loaded method; below that it degrades
++// to one command buffer in flight at a time rather than failing.
++// The cache limit bounds what MLX keeps after execute() instead of returning
++// it to the OS; 0 disables the cache entirely (MLX semantics). Both are
++// process-global MLX settings: the last handle to set them wins. Unset, or
++// memory_limit_mb <= 0, leaves the MLX defaults (1.5x the recommended working
++// set size on Metal, cache limit = memory limit) untouched.
++inline constexpr char kMemoryLimitMbKey[] = "memory_limit_mb";
++inline constexpr char kCacheLimitMbKey[] = "cache_limit_mb";
++
+ } // namespace mlx
+ } // namespace backends
+ } // namespace executorch

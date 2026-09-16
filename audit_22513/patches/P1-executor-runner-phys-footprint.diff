@@ -1,0 +1,67 @@
+diff --git a/examples/portable/executor_runner/executor_runner.cpp b/examples/portable/executor_runner/executor_runner.cpp
+index fe6acb69b7..bd1cf53a2b 100644
+--- a/examples/portable/executor_runner/executor_runner.cpp
++++ b/examples/portable/executor_runner/executor_runner.cpp
+@@ -30,6 +30,12 @@
+ 
+ #include <gflags/gflags.h>
+ 
++#ifdef __APPLE__
++#include <libproc.h>
++#include <sys/resource.h>
++#include <unistd.h>
++#endif
++
+ #include <executorch/extension/data_loader/buffer_data_loader.h>
+ #include <executorch/extension/data_loader/file_data_loader.h>
+ #include <executorch/extension/evalue_util/print_evalue.h>
+@@ -300,6 +306,33 @@ bool is_expected_vgf_dump_stop(Error status) {
+ #endif
+ }
+ 
++// Logs the process memory counters the kernel keeps for jetsam and for
++// `/usr/bin/time -l`: physical footprint (anonymous + compressed + IOKit
++// mappings, which is where Metal buffers land) and its lifetime maximum. RSS
++// only counts pages the CPU touched, so it misses buffers written by the GPU;
++// see backends/mlx/_memprofile.py for the same distinction on the export side.
++static void log_memory_counters(const char* stage) {
++#ifdef __APPLE__
++  struct rusage_info_v4 ri;
++  if (proc_pid_rusage(
++          getpid(), RUSAGE_INFO_V4, reinterpret_cast<rusage_info_t*>(&ri)) !=
++      0) {
++    ET_LOG(Info, "[%s] proc_pid_rusage failed", stage);
++    return;
++  }
++  const double mib = 1024.0 * 1024.0;
++  ET_LOG(
++      Info,
++      "[%s] rss %.1f MiB, phys_footprint %.1f MiB, lifetime_max_phys_footprint %.1f MiB",
++      stage,
++      static_cast<double>(ri.ri_resident_size) / mib,
++      static_cast<double>(ri.ri_phys_footprint) / mib,
++      static_cast<double>(ri.ri_lifetime_max_phys_footprint) / mib);
++#else
++  (void)stage;
++#endif
++}
++
+ int main(int argc, char** argv) {
+   executorch::runtime::runtime_init();
+ 
+@@ -619,6 +652,7 @@ int main(int argc, char** argv) {
+       "Loading of method %s failed with status 0x%" PRIx32,
+       method_name,
+       (uint32_t)method.error());
++  log_memory_counters("after load_method");
+   {
+     const auto load_tick_ratio = et_pal_ticks_to_ns_multiplier();
+     ET_LOG(
+@@ -792,6 +826,7 @@ int main(int argc, char** argv) {
+       FLAGS_num_executions,
+       static_cast<double>(time_spent_executing) * tick_ratio.numerator /
+           tick_ratio.denominator / NANOSECONDS_PER_MILLISECOND);
++  log_memory_counters("after execute loop");
+ 
+   // Print the outputs.
+   std::vector<EValue> outputs(method->outputs_size());
