@@ -184,9 +184,7 @@ struct ContentView: View {
         let url = dir.appendingPathComponent("results.txt")
         let stamp = ISO8601DateFormatter().string(from: Date())
         let env = "MLX_MAX_MB_PER_BUFFER=\(getenv("MLX_MAX_MB_PER_BUFFER").map { String(cString: $0) } ?? "-") MLX_MAX_OPS_PER_BUFFER=\(getenv("MLX_MAX_OPS_PER_BUFFER").map { String(cString: $0) } ?? "-") memory_limit_mb=\(memLim) cache_limit_mb=\(cacheLim)"
-        let block = "==== \(stamp) \(UIDevice.current.model) iOS \(UIDevice.current.systemVersion) \(env)
-" + text + "
-"
+        let block = "==== \(stamp) \(UIDevice.current.model) iOS \(UIDevice.current.systemVersion) \(env)\n" + text + "\n"
         if let h = try? FileHandle(forWritingTo: url) {
           h.seekToEndOfFile(); h.write(block.data(using: .utf8)!); h.closeFile()
         } else {
