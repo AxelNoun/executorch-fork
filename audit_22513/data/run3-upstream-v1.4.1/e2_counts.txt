@@ -1,0 +1,2 @@
+fused encoder: SdpaNode=4 SoftmaxNode=0
+reporter tiny (2 delegates): SdpaNode=8 SoftmaxNode=4

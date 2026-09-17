@@ -1,0 +1,32 @@
+I 00:00:00.001418 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.001454 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.001460 executorch:executor_runner.cpp:374] Resetting threadpool with num threads = 3
+I 00:00:00.001462 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.001487 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.001529 executorch:threadpool.cpp:66] Resetting threadpool to 3 threads.
+I 00:00:00.001763 executorch:executor_runner.cpp:509] Model file small.pte is loaded.
+I 00:00:00.001766 executorch:executor_runner.cpp:519] Using method encode
+I 00:00:00.001768 executorch:executor_runner.cpp:593] Setting up CPU planned buffer 0, size 6528000.
+I 00:00:00.047458 executorch:MLXExecutor.h:848] MLX constants: 364 loaded, 0 copied by MLX (0 bytes resident twice)
+I 00:00:00.158951 executorch:executor_runner.cpp:330] [after load_method] rss 110.5 MiB, phys_footprint 105.3 MiB, lifetime_max_phys_footprint 105.3 MiB
+I 00:00:00.158972 executorch:executor_runner.cpp:663] Model loaded in 157.377208 ms.
+E 00:00:00.159905 executorch:MLXBackend.cpp:497] MLX execute failed: [scatter_add_axis] Received invalid axis for array with 3 dimensions.
+E 00:00:00.160030 executorch:method.cpp:1530] CALL_DELEGATE execute failed at instruction 0: 0x1
+F 00:00:00.160037 executorch:executor_runner.cpp:811] In function main(), assert failed (status == Error::Ok): Execution of method encode failed with status 0x1
+time: command terminated abnormally
+        0.17 real         0.01 user         0.04 sys
+           118439936  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                7480  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 118  involuntary context switches
+           112543168  peak memory footprint

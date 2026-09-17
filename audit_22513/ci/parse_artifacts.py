@@ -43,13 +43,15 @@ def main(d):
         after_load = p1(t, "after load_method")
         after_exec = p1(t, "after execute loop")
         cst = p3(t)
-        ms = re.search(r"Model executed successfully (\d+) time\(s\) in ([\d.]+) ms", t)
+        iters = [float(x) for x in re.findall(r"Iteration \d+ of \d+: ([\d.]+) ms", t)]
+        # 1re itération = compilation des noyaux Metal ; régime établi = médiane des suivantes
+        steady = sorted(iters[1:])[len(iters[1:]) // 2] if len(iters) > 1 else None
+        ms = f"{iters[0]:.0f} / {steady:.0f}" if steady is not None else ("–" if not iters else f"{iters[0]:.0f} / –")
         err = "OK" if "Model executed successfully" in t else ("ÉCHEC" if re.search(r"failed|Error|error", t) else "?")
         rows.append((f.name, rss, fp,
                      after_load[2] if after_load else None, after_exec[2] if after_exec else None,
-                     f"{cst[1]}/{cst[0]} ({cst[2]:.1f} Mio)" if cst else "–",
-                     f"{float(ms.group(2)) / int(ms.group(1)):.0f}" if ms else "–", err))
-    print("| fichier | peak RSS (Mio) | peak footprint (Mio) | lifetime_max après load (Mio) | lifetime_max après exécution (Mio) | constantes copiées par MLX | ms / exécution | statut |")
+                     f"{cst[1]}/{cst[0]} ({cst[2]:.1f} Mio)" if cst else "–", ms, err))
+    print("| fichier | peak RSS (Mio) | peak footprint (Mio) | lifetime_max après load (Mio) | lifetime_max après exécution (Mio) | constantes copiées par MLX | ms 1re / régime établi | statut |")
     print("|---|---|---|---|---|---|---|---|")
     for r in rows:
         print("| " + " | ".join([r[0], fmt(r[1]), fmt(r[2]), fmt(r[3]), fmt(r[4]), r[5], r[6], r[7]]) + " |")

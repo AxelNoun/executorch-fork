@@ -22,6 +22,7 @@ Compagnon de `../AUDIT_22513.md`. Tout a été produit sous Windows 11, CPU seul
 | | `hist_*.txt` | histogrammes correspondants |
 | | `sim_cbuf.txt` | sortie de `sim_cbuf.py` |
 | | `hf_pte_sha256.txt` | empreintes des deux `.pte` téléchargés |
+| | `run3-upstream-v1.4.1/`, `run4-upstream-v1.4.1/`, `run4-sm-fork-1.4.1/` | artefacts bruts des runs GitHub Actions 35187550634 et 35189553833 (`e*.txt`, sorties `pte_inspector`) + `TABLE.md` produit par `ci/parse_artifacts.py` ; lus dans AUDIT_22513.md § 5 bis |
 
 ## Recette (Windows, Git Bash)
 
@@ -66,7 +67,7 @@ Pièges rencontrés : `transformers` doit être importé **avant** que `torchao`
 
 ## Ce que ces scripts ne font pas
 
-Aucune mesure mémoire : pas de Mac Apple Silicon ni d'iPhone ici. Les expériences E1-E9 du rapport (§ 5) restent à lancer.
+Aucune mesure mémoire en local (Windows). Les mesures viennent des runs GitHub Actions ci-dessous (`data/run*`) ; l'iPhone n'a pas été mesuré.
 
 ## `ci/` — lancer E1, E3, E6, E7, E8, E9 sans Mac : GitHub Actions
 
@@ -78,6 +79,8 @@ Les runners GitHub `macos-26` (arm64, macOS 26.6.2, Xcode) exposent un device Me
 | `ci/e8_mmap_runtime.py` | charge un `.pte` par les pybindings (`MmapDataLoader` + mlock, `pybindings.cpp:190-191`), exécute une méthode, imprime rss / footprint (offsets `rusage_info_v4` vérifiés dans `bsd/sys/resource.h`) ; avec P3, le log « MLX constants: … copied » |
 | `ci/e9_nocopy.mm` | `newBufferWithBytesNoCopy` sur pointeur aligné / non aligné, longueur multiple / non multiple de page, blocs `posix_memalign(16, …)` de la taille des poids |
 
-Mise en route : créer une branche du fork (`realfork`) à partir de `v1.4.1` ou de `main`, y ajouter `audit_22513/`, copier `audit_22513/ci/audit-22513-macos.yml` dans `.github/workflows/`, pousser, puis « Actions → audit-22513-macos → Run workflow ». Runner standard = 3 vCPU / 7 Go, gratuit pour un dépôt public ; prévoir 40-60 min (l'install seule prend ~10 min sur un `xlarge`).
+Ce qui a tourné : branche `audit/22513-macos` de `AxelNoun/executorch-fork` (= `v1.4.1` + `audit_22513/` + le workflow dans `.github/workflows/`), déclenchée par push (`workflow_dispatch` exige le fichier sur la branche par défaut). Runs : 35185675672 et 35186187588 (échecs de configuration : nom de répertoire `executorch` imposé par `CMakeLists.txt:456`, puis extensions `EVALUE_UTIL`/`RUNNER_UTIL` requises par `executor_runner`), **35187550634** (upstream, vert, 20 min) et **35189553833** (matrice upstream + fork SM, vert, ~30 min). Durées sur le runner standard : install 15 min, build `executor_runner` 3 min, mesures 1-2 min. `ci/parse_artifacts.py <dossier>` produit le tableau.
 
-Limites : VM (GPU paravirtualisé, `recommendedMaxWorkingSetSize` et cadence GPU différents d'un iPhone) — on y valide les **mécanismes** (RSS aveugle ou non, règles de coupe, `MLX_MAX_*`, alignement), pas les valeurs absolues de l'issue ; E3 / E4 sur l'appareil restent au rapporteur ; P2 (`memory_limit_mb`) n'est pas dans le workflow parce qu'`executor_runner` ne transmet pas de `BackendOptions` (E4 demande un runner qui appelle `Module::load(LoadBackendOptionsMap)` ou les pybindings).
+Pour relancer : pousser sur `audit/22513-*` (ajouter `[skip ci]` au message pour pousser sans relancer).
+
+Limites : VM (GPU « Apple Paravirtual device », `air64_v27`, `recommendedMaxWorkingSetSize` 4,67 Gio, cadence GPU différente d'un iPhone) — on y valide les **mécanismes** (RSS aveugle, règles de coupe, `MLX_MAX_*`, alignement, loaders), pas les valeurs absolues de l'appareil ; E3 / E4 sur l'iPhone restent au rapporteur ; P2 (`memory_limit_mb`) n'est pas dans le workflow parce qu'`executor_runner` ne transmet pas de `BackendOptions`. Le `whisper_small_mlx_int8.pte` du rapporteur ne s'exécute que sur le runtime de son fork (schéma MLX décalé) : d'où le job `sm-fork-1.4.1`.
