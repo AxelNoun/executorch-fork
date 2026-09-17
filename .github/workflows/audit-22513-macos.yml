@@ -90,7 +90,9 @@ jobs:
       - name: Build executor_runner avec le délégué MLX
         run: |
           set -eux
-          cmake --preset mlx-release -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=ON -DET_MIN_LOG_LEVEL=Info
+          # executor_runner exige EVALUE_UTIL et RUNNER_UTIL (tools/cmake/preset/default.cmake:364-366),
+          # que le preset mlx n'active pas.
+          cmake --preset mlx-release -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=ON             -DEXECUTORCH_BUILD_EXTENSION_EVALUE_UTIL=ON -DEXECUTORCH_BUILD_EXTENSION_RUNNER_UTIL=ON             -DET_MIN_LOG_LEVEL=Info
           cmake --build cmake-out --target executor_runner -j"$(sysctl -n hw.ncpu)"
           ls -la cmake-out/executor_runner
           ls cmake-out/backends/mlx/mlx/mlx/backend/metal/kernels/mlx.metallib
