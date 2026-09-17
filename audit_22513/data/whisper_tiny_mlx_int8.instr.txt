@@ -1,0 +1,2670 @@
+
+======================================================================
+MLX DELEGATE 0 (plan index 0)
+======================================================================
+Version: 1
+Constant tensors: 181
+Input tensors: 3
+Output tensors: 1
+Mutable buffer tensors: 8
+Temp tensors: 6
+Values: 2
+Instruction chains: 2
+Main chain idx: 0
+Init chain idx: 1
+
+Chain 0 (main) (244 instructions):
+  [0] AsTypeNode
+      x: tid 181
+      out: tid 193
+      scalar_type: 15
+  [1] TakeNode
+      x: tid 182
+      out: tid 194
+      index: {'literal': 0}
+      axis: 0
+  [2] ItemIntNode
+      x: tid 194
+      out: vid 0
+  [3] TakeNode
+      x: tid 1
+      out: tid 194
+      index: tid 183
+      axis: 0
+  [4] TakeNode
+      x: tid 0
+      out: tid 195
+      index: tid 182
+      axis: 0
+  [5] AddNode
+      a: tid 194
+      b: tid 195
+      out: tid 194
+  [6] AsTypeNode
+      x: tid 194
+      out: tid 195
+      scalar_type: 6
+  [7] LayerNormNode
+      x: tid 195
+      out: tid 196
+      weight: tid 5
+      bias: tid 6
+      eps: 9.999999747378752e-06
+  [8] AsTypeNode
+      x: tid 196
+      out: tid 195
+      scalar_type: 15
+  [9] ScatterAddNode
+      x: tid 195
+      indices: tid 61
+      updates: tid 60
+      out: tid 196
+      axis: 63
+  [10] AddNode
+      a: tid 196
+      b: tid 2
+      out: tid 196
+  [11] ReshapeNode
+      x: tid 196
+      out: tid 197
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [12] TransposeNode
+      x: tid 197
+      out: tid 196
+      perm: [0, 2, 1, 3]
+  [13] ScatterAddNode
+      x: tid 195
+      indices: tid 65
+      updates: tid 64
+      out: tid 197
+      axis: 66
+  [14] ScatterAddNode
+      x: tid 195
+      indices: tid 68
+      updates: tid 67
+      out: tid 198
+      axis: 69
+  [15] AddNode
+      a: tid 198
+      b: tid 3
+      out: tid 198
+  [16] ReshapeNode
+      x: tid 197
+      out: tid 195
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [17] TransposeNode
+      x: tid 195
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [18] ReshapeNode
+      x: tid 198
+      out: tid 195
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [19] TransposeNode
+      x: tid 195
+      out: tid 198
+      perm: [0, 2, 1, 3]
+  [20] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [21] SliceUpdateNode
+      dst: tid 185
+      update: tid 197
+      out: tid 185
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 1
+      step: 1
+  [22] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [23] SliceUpdateNode
+      dst: tid 186
+      update: tid 198
+      out: tid 186
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 1
+      step: 1
+  [24] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [25] SliceNode
+      x: tid 185
+      out: tid 195
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 1
+      step: 1
+  [26] SliceNode
+      x: tid 186
+      out: tid 197
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 1
+      step: 1
+  [27] SdpaNode
+      q: tid 196
+      k: tid 195
+      v: tid 197
+      out: tid 198
+      scale: 0.125
+      causal: True
+  [28] TransposeNode
+      x: tid 198
+      out: tid 195
+      perm: [0, 2, 1, 3]
+  [29] ReshapeNode
+      x: tid 195
+      out: tid 196
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [30] ScatterAddNode
+      x: tid 196
+      indices: tid 71
+      updates: tid 70
+      out: tid 197
+      axis: 72
+  [31] AddNode
+      a: tid 197
+      b: tid 4
+      out: tid 197
+  [32] AddNode
+      a: tid 194
+      b: tid 197
+      out: tid 195
+  [33] AsTypeNode
+      x: tid 195
+      out: tid 196
+      scalar_type: 6
+  [34] LayerNormNode
+      x: tid 196
+      out: tid 197
+      weight: tid 10
+      bias: tid 11
+      eps: 9.999999747378752e-06
+  [35] AsTypeNode
+      x: tid 197
+      out: tid 198
+      scalar_type: 15
+  [36] ScatterAddNode
+      x: tid 198
+      indices: tid 74
+      updates: tid 73
+      out: tid 194
+      axis: 75
+  [37] AddNode
+      a: tid 194
+      b: tid 7
+      out: tid 194
+  [38] ReshapeNode
+      x: tid 194
+      out: tid 196
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [39] TransposeNode
+      x: tid 196
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [40] ScatterAddNode
+      x: tid 193
+      indices: tid 77
+      updates: tid 76
+      out: tid 198
+      axis: 78
+  [41] ScatterAddNode
+      x: tid 193
+      indices: tid 80
+      updates: tid 79
+      out: tid 194
+      axis: 81
+  [42] AddNode
+      a: tid 194
+      b: tid 8
+      out: tid 194
+  [43] ReshapeNode
+      x: tid 198
+      out: tid 196
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [44] TransposeNode
+      x: tid 196
+      out: tid 198
+      perm: [0, 2, 1, 3]
+  [45] ReshapeNode
+      x: tid 194
+      out: tid 196
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [46] TransposeNode
+      x: tid 196
+      out: tid 194
+      perm: [0, 2, 1, 3]
+  [47] SdpaNode
+      q: tid 197
+      k: tid 198
+      v: tid 194
+      out: tid 196
+      scale: 0.125
+      causal: False
+  [48] TransposeNode
+      x: tid 196
+      out: tid 194
+      perm: [0, 2, 1, 3]
+  [49] ReshapeNode
+      x: tid 194
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [50] ScatterAddNode
+      x: tid 198
+      indices: tid 83
+      updates: tid 82
+      out: tid 197
+      axis: 84
+  [51] AddNode
+      a: tid 197
+      b: tid 9
+      out: tid 197
+  [52] AddNode
+      a: tid 195
+      b: tid 197
+      out: tid 196
+  [53] AsTypeNode
+      x: tid 196
+      out: tid 194
+      scalar_type: 6
+  [54] LayerNormNode
+      x: tid 194
+      out: tid 198
+      weight: tid 14
+      bias: tid 15
+      eps: 9.999999747378752e-06
+  [55] AsTypeNode
+      x: tid 198
+      out: tid 197
+      scalar_type: 15
+  [56] ScatterAddNode
+      x: tid 197
+      indices: tid 86
+      updates: tid 85
+      out: tid 195
+      axis: 87
+  [57] AddNode
+      a: tid 195
+      b: tid 12
+      out: tid 195
+  [58] GeluNode
+      x: tid 195
+      out: tid 195
+      approximate: none
+  [59] ScatterAddNode
+      x: tid 195
+      indices: tid 89
+      updates: tid 88
+      out: tid 197
+      axis: 90
+  [60] AddNode
+      a: tid 197
+      b: tid 13
+      out: tid 197
+  [61] AddNode
+      a: tid 196
+      b: tid 197
+      out: tid 194
+  [62] AsTypeNode
+      x: tid 194
+      out: tid 198
+      scalar_type: 6
+  [63] LayerNormNode
+      x: tid 198
+      out: tid 197
+      weight: tid 19
+      bias: tid 20
+      eps: 9.999999747378752e-06
+  [64] AsTypeNode
+      x: tid 197
+      out: tid 195
+      scalar_type: 15
+  [65] ScatterAddNode
+      x: tid 195
+      indices: tid 92
+      updates: tid 91
+      out: tid 196
+      axis: 93
+  [66] AddNode
+      a: tid 196
+      b: tid 16
+      out: tid 196
+  [67] ReshapeNode
+      x: tid 196
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [68] TransposeNode
+      x: tid 198
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [69] ScatterAddNode
+      x: tid 195
+      indices: tid 95
+      updates: tid 94
+      out: tid 198
+      axis: 96
+  [70] ScatterAddNode
+      x: tid 195
+      indices: tid 98
+      updates: tid 97
+      out: tid 196
+      axis: 99
+  [71] AddNode
+      a: tid 196
+      b: tid 17
+      out: tid 196
+  [72] ReshapeNode
+      x: tid 198
+      out: tid 195
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [73] TransposeNode
+      x: tid 195
+      out: tid 198
+      perm: [0, 2, 1, 3]
+  [74] ReshapeNode
+      x: tid 196
+      out: tid 195
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [75] TransposeNode
+      x: tid 195
+      out: tid 196
+      perm: [0, 2, 1, 3]
+  [76] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [77] SliceUpdateNode
+      dst: tid 187
+      update: tid 198
+      out: tid 187
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 1
+      step: 1
+  [78] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [79] SliceUpdateNode
+      dst: tid 188
+      update: tid 196
+      out: tid 188
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 1
+      step: 1
+  [80] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [81] SliceNode
+      x: tid 187
+      out: tid 196
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 1
+      step: 1
+  [82] SliceNode
+      x: tid 188
+      out: tid 198
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 1
+      step: 1
+  [83] SdpaNode
+      q: tid 197
+      k: tid 196
+      v: tid 198
+      out: tid 195
+      scale: 0.125
+      causal: True
+  [84] TransposeNode
+      x: tid 195
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [85] ReshapeNode
+      x: tid 197
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [86] ScatterAddNode
+      x: tid 198
+      indices: tid 101
+      updates: tid 100
+      out: tid 196
+      axis: 102
+  [87] AddNode
+      a: tid 196
+      b: tid 18
+      out: tid 196
+  [88] AddNode
+      a: tid 194
+      b: tid 196
+      out: tid 195
+  [89] AsTypeNode
+      x: tid 195
+      out: tid 197
+      scalar_type: 6
+  [90] LayerNormNode
+      x: tid 197
+      out: tid 198
+      weight: tid 24
+      bias: tid 25
+      eps: 9.999999747378752e-06
+  [91] AsTypeNode
+      x: tid 198
+      out: tid 196
+      scalar_type: 15
+  [92] ScatterAddNode
+      x: tid 196
+      indices: tid 104
+      updates: tid 103
+      out: tid 194
+      axis: 105
+  [93] AddNode
+      a: tid 194
+      b: tid 21
+      out: tid 194
+  [94] ReshapeNode
+      x: tid 194
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [95] TransposeNode
+      x: tid 198
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [96] ScatterAddNode
+      x: tid 193
+      indices: tid 107
+      updates: tid 106
+      out: tid 196
+      axis: 108
+  [97] ScatterAddNode
+      x: tid 193
+      indices: tid 110
+      updates: tid 109
+      out: tid 194
+      axis: 111
+  [98] AddNode
+      a: tid 194
+      b: tid 22
+      out: tid 194
+  [99] ReshapeNode
+      x: tid 196
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [100] TransposeNode
+      x: tid 198
+      out: tid 196
+      perm: [0, 2, 1, 3]
+  [101] ReshapeNode
+      x: tid 194
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [102] TransposeNode
+      x: tid 198
+      out: tid 194
+      perm: [0, 2, 1, 3]
+  [103] SdpaNode
+      q: tid 197
+      k: tid 196
+      v: tid 194
+      out: tid 198
+      scale: 0.125
+      causal: False
+  [104] TransposeNode
+      x: tid 198
+      out: tid 194
+      perm: [0, 2, 1, 3]
+  [105] ReshapeNode
+      x: tid 194
+      out: tid 196
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [106] ScatterAddNode
+      x: tid 196
+      indices: tid 113
+      updates: tid 112
+      out: tid 197
+      axis: 114
+  [107] AddNode
+      a: tid 197
+      b: tid 23
+      out: tid 197
+  [108] AddNode
+      a: tid 195
+      b: tid 197
+      out: tid 198
+  [109] AsTypeNode
+      x: tid 198
+      out: tid 194
+      scalar_type: 6
+  [110] LayerNormNode
+      x: tid 194
+      out: tid 196
+      weight: tid 28
+      bias: tid 29
+      eps: 9.999999747378752e-06
+  [111] AsTypeNode
+      x: tid 196
+      out: tid 197
+      scalar_type: 15
+  [112] ScatterAddNode
+      x: tid 197
+      indices: tid 116
+      updates: tid 115
+      out: tid 195
+      axis: 117
+  [113] AddNode
+      a: tid 195
+      b: tid 26
+      out: tid 195
+  [114] GeluNode
+      x: tid 195
+      out: tid 195
+      approximate: none
+  [115] ScatterAddNode
+      x: tid 195
+      indices: tid 119
+      updates: tid 118
+      out: tid 196
+      axis: 120
+  [116] AddNode
+      a: tid 196
+      b: tid 27
+      out: tid 196
+  [117] AddNode
+      a: tid 198
+      b: tid 196
+      out: tid 194
+  [118] AsTypeNode
+      x: tid 194
+      out: tid 196
+      scalar_type: 6
+  [119] LayerNormNode
+      x: tid 196
+      out: tid 197
+      weight: tid 33
+      bias: tid 34
+      eps: 9.999999747378752e-06
+  [120] AsTypeNode
+      x: tid 197
+      out: tid 195
+      scalar_type: 15
+  [121] ScatterAddNode
+      x: tid 195
+      indices: tid 122
+      updates: tid 121
+      out: tid 198
+      axis: 123
+  [122] AddNode
+      a: tid 198
+      b: tid 30
+      out: tid 198
+  [123] ReshapeNode
+      x: tid 198
+      out: tid 196
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [124] TransposeNode
+      x: tid 196
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [125] ScatterAddNode
+      x: tid 195
+      indices: tid 125
+      updates: tid 124
+      out: tid 198
+      axis: 126
+  [126] ScatterAddNode
+      x: tid 195
+      indices: tid 128
+      updates: tid 127
+      out: tid 196
+      axis: 129
+  [127] AddNode
+      a: tid 196
+      b: tid 31
+      out: tid 196
+  [128] ReshapeNode
+      x: tid 198
+      out: tid 195
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [129] TransposeNode
+      x: tid 195
+      out: tid 198
+      perm: [0, 2, 1, 3]
+  [130] ReshapeNode
+      x: tid 196
+      out: tid 195
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [131] TransposeNode
+      x: tid 195
+      out: tid 196
+      perm: [0, 2, 1, 3]
+  [132] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [133] SliceUpdateNode
+      dst: tid 189
+      update: tid 198
+      out: tid 189
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 1
+      step: 1
+  [134] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [135] SliceUpdateNode
+      dst: tid 190
+      update: tid 196
+      out: tid 190
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 1
+      step: 1
+  [136] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [137] SliceNode
+      x: tid 189
+      out: tid 196
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 1
+      step: 1
+  [138] SliceNode
+      x: tid 190
+      out: tid 198
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 1
+      step: 1
+  [139] SdpaNode
+      q: tid 197
+      k: tid 196
+      v: tid 198
+      out: tid 195
+      scale: 0.125
+      causal: True
+  [140] TransposeNode
+      x: tid 195
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [141] ReshapeNode
+      x: tid 197
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [142] ScatterAddNode
+      x: tid 198
+      indices: tid 131
+      updates: tid 130
+      out: tid 196
+      axis: 132
+  [143] AddNode
+      a: tid 196
+      b: tid 32
+      out: tid 196
+  [144] AddNode
+      a: tid 194
+      b: tid 196
+      out: tid 195
+  [145] AsTypeNode
+      x: tid 195
+      out: tid 197
+      scalar_type: 6
+  [146] LayerNormNode
+      x: tid 197
+      out: tid 198
+      weight: tid 38
+      bias: tid 39
+      eps: 9.999999747378752e-06
+  [147] AsTypeNode
+      x: tid 198
+      out: tid 196
+      scalar_type: 15
+  [148] ScatterAddNode
+      x: tid 196
+      indices: tid 134
+      updates: tid 133
+      out: tid 194
+      axis: 135
+  [149] AddNode
+      a: tid 194
+      b: tid 35
+      out: tid 194
+  [150] ReshapeNode
+      x: tid 194
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [151] TransposeNode
+      x: tid 198
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [152] ScatterAddNode
+      x: tid 193
+      indices: tid 137
+      updates: tid 136
+      out: tid 196
+      axis: 138
+  [153] ScatterAddNode
+      x: tid 193
+      indices: tid 140
+      updates: tid 139
+      out: tid 194
+      axis: 141
+  [154] AddNode
+      a: tid 194
+      b: tid 36
+      out: tid 194
+  [155] ReshapeNode
+      x: tid 196
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [156] TransposeNode
+      x: tid 198
+      out: tid 196
+      perm: [0, 2, 1, 3]
+  [157] ReshapeNode
+      x: tid 194
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [158] TransposeNode
+      x: tid 198
+      out: tid 194
+      perm: [0, 2, 1, 3]
+  [159] SdpaNode
+      q: tid 197
+      k: tid 196
+      v: tid 194
+      out: tid 198
+      scale: 0.125
+      causal: False
+  [160] TransposeNode
+      x: tid 198
+      out: tid 194
+      perm: [0, 2, 1, 3]
+  [161] ReshapeNode
+      x: tid 194
+      out: tid 196
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [162] ScatterAddNode
+      x: tid 196
+      indices: tid 143
+      updates: tid 142
+      out: tid 197
+      axis: 144
+  [163] AddNode
+      a: tid 197
+      b: tid 37
+      out: tid 197
+  [164] AddNode
+      a: tid 195
+      b: tid 197
+      out: tid 198
+  [165] AsTypeNode
+      x: tid 198
+      out: tid 194
+      scalar_type: 6
+  [166] LayerNormNode
+      x: tid 194
+      out: tid 196
+      weight: tid 42
+      bias: tid 43
+      eps: 9.999999747378752e-06
+  [167] AsTypeNode
+      x: tid 196
+      out: tid 197
+      scalar_type: 15
+  [168] ScatterAddNode
+      x: tid 197
+      indices: tid 146
+      updates: tid 145
+      out: tid 195
+      axis: 147
+  [169] AddNode
+      a: tid 195
+      b: tid 40
+      out: tid 195
+  [170] GeluNode
+      x: tid 195
+      out: tid 195
+      approximate: none
+  [171] ScatterAddNode
+      x: tid 195
+      indices: tid 149
+      updates: tid 148
+      out: tid 196
+      axis: 150
+  [172] AddNode
+      a: tid 196
+      b: tid 41
+      out: tid 196
+  [173] AddNode
+      a: tid 198
+      b: tid 196
+      out: tid 194
+  [174] AsTypeNode
+      x: tid 194
+      out: tid 196
+      scalar_type: 6
+  [175] LayerNormNode
+      x: tid 196
+      out: tid 197
+      weight: tid 47
+      bias: tid 48
+      eps: 9.999999747378752e-06
+  [176] AsTypeNode
+      x: tid 197
+      out: tid 195
+      scalar_type: 15
+  [177] ScatterAddNode
+      x: tid 195
+      indices: tid 152
+      updates: tid 151
+      out: tid 198
+      axis: 153
+  [178] AddNode
+      a: tid 198
+      b: tid 44
+      out: tid 198
+  [179] ReshapeNode
+      x: tid 198
+      out: tid 196
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [180] TransposeNode
+      x: tid 196
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [181] ScatterAddNode
+      x: tid 195
+      indices: tid 155
+      updates: tid 154
+      out: tid 198
+      axis: 156
+  [182] ScatterAddNode
+      x: tid 195
+      indices: tid 158
+      updates: tid 157
+      out: tid 196
+      axis: 159
+  [183] AddNode
+      a: tid 196
+      b: tid 45
+      out: tid 196
+  [184] ReshapeNode
+      x: tid 198
+      out: tid 195
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [185] TransposeNode
+      x: tid 195
+      out: tid 198
+      perm: [0, 2, 1, 3]
+  [186] ReshapeNode
+      x: tid 196
+      out: tid 195
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [187] TransposeNode
+      x: tid 195
+      out: tid 196
+      perm: [0, 2, 1, 3]
+  [188] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [189] SliceUpdateNode
+      dst: tid 191
+      update: tid 198
+      out: tid 191
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 1
+      step: 1
+  [190] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [191] SliceUpdateNode
+      dst: tid 192
+      update: tid 196
+      out: tid 192
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 1
+      step: 1
+  [192] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [193] SliceNode
+      x: tid 191
+      out: tid 196
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 1
+      step: 1
+  [194] SliceNode
+      x: tid 192
+      out: tid 198
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 1
+      step: 1
+  [195] SdpaNode
+      q: tid 197
+      k: tid 196
+      v: tid 198
+      out: tid 195
+      scale: 0.125
+      causal: True
+  [196] TransposeNode
+      x: tid 195
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [197] ReshapeNode
+      x: tid 197
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [198] ScatterAddNode
+      x: tid 198
+      indices: tid 161
+      updates: tid 160
+      out: tid 196
+      axis: 162
+  [199] AddNode
+      a: tid 196
+      b: tid 46
+      out: tid 196
+  [200] AddNode
+      a: tid 194
+      b: tid 196
+      out: tid 195
+  [201] AsTypeNode
+      x: tid 195
+      out: tid 197
+      scalar_type: 6
+  [202] LayerNormNode
+      x: tid 197
+      out: tid 198
+      weight: tid 52
+      bias: tid 53
+      eps: 9.999999747378752e-06
+  [203] AsTypeNode
+      x: tid 198
+      out: tid 196
+      scalar_type: 15
+  [204] ScatterAddNode
+      x: tid 196
+      indices: tid 164
+      updates: tid 163
+      out: tid 194
+      axis: 165
+  [205] AddNode
+      a: tid 194
+      b: tid 49
+      out: tid 194
+  [206] ReshapeNode
+      x: tid 194
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [207] TransposeNode
+      x: tid 198
+      out: tid 197
+      perm: [0, 2, 1, 3]
+  [208] ScatterAddNode
+      x: tid 193
+      indices: tid 167
+      updates: tid 166
+      out: tid 196
+      axis: 168
+  [209] ScatterAddNode
+      x: tid 193
+      indices: tid 170
+      updates: tid 169
+      out: tid 194
+      axis: 171
+  [210] AddNode
+      a: tid 194
+      b: tid 50
+      out: tid 194
+  [211] ReshapeNode
+      x: tid 196
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [212] TransposeNode
+      x: tid 198
+      out: tid 193
+      perm: [0, 2, 1, 3]
+  [213] ReshapeNode
+      x: tid 194
+      out: tid 198
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [214] TransposeNode
+      x: tid 198
+      out: tid 196
+      perm: [0, 2, 1, 3]
+  [215] SdpaNode
+      q: tid 197
+      k: tid 193
+      v: tid 196
+      out: tid 194
+      scale: 0.125
+      causal: False
+  [216] TransposeNode
+      x: tid 194
+      out: tid 198
+      perm: [0, 2, 1, 3]
+  [217] ReshapeNode
+      x: tid 198
+      out: tid 196
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [218] ScatterAddNode
+      x: tid 196
+      indices: tid 173
+      updates: tid 172
+      out: tid 198
+      axis: 174
+  [219] AddNode
+      a: tid 198
+      b: tid 51
+      out: tid 198
+  [220] AddNode
+      a: tid 195
+      b: tid 198
+      out: tid 193
+  [221] AsTypeNode
+      x: tid 193
+      out: tid 194
+      scalar_type: 6
+  [222] LayerNormNode
+      x: tid 194
+      out: tid 195
+      weight: tid 56
+      bias: tid 57
+      eps: 9.999999747378752e-06
+  [223] AsTypeNode
+      x: tid 195
+      out: tid 196
+      scalar_type: 15
+  [224] ScatterAddNode
+      x: tid 196
+      indices: tid 176
+      updates: tid 175
+      out: tid 197
+      axis: 177
+  [225] AddNode
+      a: tid 197
+      b: tid 54
+      out: tid 197
+  [226] GeluNode
+      x: tid 197
+      out: tid 197
+      approximate: none
+  [227] ScatterAddNode
+      x: tid 197
+      indices: tid 179
+      updates: tid 178
+      out: tid 198
+      axis: 180
+  [228] AddNode
+      a: tid 198
+      b: tid 55
+      out: tid 198
+  [229] AddNode
+      a: tid 193
+      b: tid 198
+      out: tid 194
+  [230] AsTypeNode
+      x: tid 194
+      out: tid 195
+      scalar_type: 6
+  [231] LayerNormNode
+      x: tid 195
+      out: tid 196
+      weight: tid 58
+      bias: tid 59
+      eps: 9.999999747378752e-06
+  [232] AsTypeNode
+      x: tid 196
+      out: tid 197
+      scalar_type: 15
+  [233] TransposeNode
+      x: tid 1
+      out: tid 198
+      perm: [1, 0]
+  [234] AddmmNode
+      mat1: tid 197
+      mat2: tid 198
+      out: tid 193
+      alpha: 1.0
+      beta: 1.0
+  [235] AsTypeNode
+      x: tid 193
+      out: tid 184
+      scalar_type: 6
+  [236] IdCopyNode
+      x: tid 185
+      out: tid 185
+  [237] IdCopyNode
+      x: tid 186
+      out: tid 186
+  [238] IdCopyNode
+      x: tid 187
+      out: tid 187
+  [239] IdCopyNode
+      x: tid 188
+      out: tid 188
+  [240] IdCopyNode
+      x: tid 189
+      out: tid 189
+  [241] IdCopyNode
+      x: tid 190
+      out: tid 190
+  [242] IdCopyNode
+      x: tid 191
+      out: tid 191
+  [243] IdCopyNode
+      x: tid 192
+      out: tid 192
+
+Chain 1 (init) (40 instructions):
+  [0] MultiplyNode
+      a: tid 60
+      b: tid 62
+      out: tid 63
+  [1] MultiplyNode
+      a: tid 64
+      b: tid 62
+      out: tid 66
+  [2] MultiplyNode
+      a: tid 67
+      b: tid 62
+      out: tid 69
+  [3] MultiplyNode
+      a: tid 70
+      b: tid 62
+      out: tid 72
+  [4] MultiplyNode
+      a: tid 73
+      b: tid 62
+      out: tid 75
+  [5] MultiplyNode
+      a: tid 76
+      b: tid 62
+      out: tid 78
+  [6] MultiplyNode
+      a: tid 79
+      b: tid 62
+      out: tid 81
+  [7] MultiplyNode
+      a: tid 82
+      b: tid 62
+      out: tid 84
+  [8] MultiplyNode
+      a: tid 85
+      b: tid 62
+      out: tid 87
+  [9] MultiplyNode
+      a: tid 88
+      b: tid 62
+      out: tid 90
+  [10] MultiplyNode
+      a: tid 91
+      b: tid 62
+      out: tid 93
+  [11] MultiplyNode
+      a: tid 94
+      b: tid 62
+      out: tid 96
+  [12] MultiplyNode
+      a: tid 97
+      b: tid 62
+      out: tid 99
+  [13] MultiplyNode
+      a: tid 100
+      b: tid 62
+      out: tid 102
+  [14] MultiplyNode
+      a: tid 103
+      b: tid 62
+      out: tid 105
+  [15] MultiplyNode
+      a: tid 106
+      b: tid 62
+      out: tid 108
+  [16] MultiplyNode
+      a: tid 109
+      b: tid 62
+      out: tid 111
+  [17] MultiplyNode
+      a: tid 112
+      b: tid 62
+      out: tid 114
+  [18] MultiplyNode
+      a: tid 115
+      b: tid 62
+      out: tid 117
+  [19] MultiplyNode
+      a: tid 118
+      b: tid 62
+      out: tid 120
+  [20] MultiplyNode
+      a: tid 121
+      b: tid 62
+      out: tid 123
+  [21] MultiplyNode
+      a: tid 124
+      b: tid 62
+      out: tid 126
+  [22] MultiplyNode
+      a: tid 127
+      b: tid 62
+      out: tid 129
+  [23] MultiplyNode
+      a: tid 130
+      b: tid 62
+      out: tid 132
+  [24] MultiplyNode
+      a: tid 133
+      b: tid 62
+      out: tid 135
+  [25] MultiplyNode
+      a: tid 136
+      b: tid 62
+      out: tid 138
+  [26] MultiplyNode
+      a: tid 139
+      b: tid 62
+      out: tid 141
+  [27] MultiplyNode
+      a: tid 142
+      b: tid 62
+      out: tid 144
+  [28] MultiplyNode
+      a: tid 145
+      b: tid 62
+      out: tid 147
+  [29] MultiplyNode
+      a: tid 148
+      b: tid 62
+      out: tid 150
+  [30] MultiplyNode
+      a: tid 151
+      b: tid 62
+      out: tid 153
+  [31] MultiplyNode
+      a: tid 154
+      b: tid 62
+      out: tid 156
+  [32] MultiplyNode
+      a: tid 157
+      b: tid 62
+      out: tid 159
+  [33] MultiplyNode
+      a: tid 160
+      b: tid 62
+      out: tid 162
+  [34] MultiplyNode
+      a: tid 163
+      b: tid 62
+      out: tid 165
+  [35] MultiplyNode
+      a: tid 166
+      b: tid 62
+      out: tid 168
+  [36] MultiplyNode
+      a: tid 169
+      b: tid 62
+      out: tid 171
+  [37] MultiplyNode
+      a: tid 172
+      b: tid 62
+      out: tid 174
+  [38] MultiplyNode
+      a: tid 175
+      b: tid 62
+      out: tid 177
+  [39] MultiplyNode
+      a: tid 178
+      b: tid 62
+      out: tid 180
+
+Named Slots:
+  [0] 60f6/decoder.positional_embedding (tid)
+  [1] 60f6/decoder.token_embedding.weight (tid)
+  [2] 60f6/decoder.blocks.0.attn.query.bias (tid)
+  [3] 60f6/decoder.blocks.0.attn.value.bias (tid)
+  [4] 60f6/decoder.blocks.0.attn.out.bias (tid)
+  [5] 60f6/decoder.blocks.0.attn_ln.weight (tid)
+  [6] 60f6/decoder.blocks.0.attn_ln.bias (tid)
+  [7] 60f6/decoder.blocks.0.cross_attn.query.bias (tid)
+  [8] 60f6/decoder.blocks.0.cross_attn.value.bias (tid)
+  [9] 60f6/decoder.blocks.0.cross_attn.out.bias (tid)
+  [10] 60f6/decoder.blocks.0.cross_attn_ln.weight (tid)
+  [11] 60f6/decoder.blocks.0.cross_attn_ln.bias (tid)
+  [12] 60f6/decoder.blocks.0.mlp.0.bias (tid)
+  [13] 60f6/decoder.blocks.0.mlp.2.bias (tid)
+  [14] 60f6/decoder.blocks.0.mlp_ln.weight (tid)
+  [15] 60f6/decoder.blocks.0.mlp_ln.bias (tid)
+  [16] 60f6/decoder.blocks.1.attn.query.bias (tid)
+  [17] 60f6/decoder.blocks.1.attn.value.bias (tid)
+  [18] 60f6/decoder.blocks.1.attn.out.bias (tid)
+  [19] 60f6/decoder.blocks.1.attn_ln.weight (tid)
+  [20] 60f6/decoder.blocks.1.attn_ln.bias (tid)
+  [21] 60f6/decoder.blocks.1.cross_attn.query.bias (tid)
+  [22] 60f6/decoder.blocks.1.cross_attn.value.bias (tid)
+  [23] 60f6/decoder.blocks.1.cross_attn.out.bias (tid)
+  [24] 60f6/decoder.blocks.1.cross_attn_ln.weight (tid)
+  [25] 60f6/decoder.blocks.1.cross_attn_ln.bias (tid)
+  [26] 60f6/decoder.blocks.1.mlp.0.bias (tid)
+  [27] 60f6/decoder.blocks.1.mlp.2.bias (tid)
+  [28] 60f6/decoder.blocks.1.mlp_ln.weight (tid)
+  [29] 60f6/decoder.blocks.1.mlp_ln.bias (tid)
+  [30] 60f6/decoder.blocks.2.attn.query.bias (tid)
+  [31] 60f6/decoder.blocks.2.attn.value.bias (tid)
+  [32] 60f6/decoder.blocks.2.attn.out.bias (tid)
+  [33] 60f6/decoder.blocks.2.attn_ln.weight (tid)
+  [34] 60f6/decoder.blocks.2.attn_ln.bias (tid)
+  [35] 60f6/decoder.blocks.2.cross_attn.query.bias (tid)
+  [36] 60f6/decoder.blocks.2.cross_attn.value.bias (tid)
+  [37] 60f6/decoder.blocks.2.cross_attn.out.bias (tid)
+  [38] 60f6/decoder.blocks.2.cross_attn_ln.weight (tid)
+  [39] 60f6/decoder.blocks.2.cross_attn_ln.bias (tid)
+  [40] 60f6/decoder.blocks.2.mlp.0.bias (tid)
+  [41] 60f6/decoder.blocks.2.mlp.2.bias (tid)
+  [42] 60f6/decoder.blocks.2.mlp_ln.weight (tid)
+  [43] 60f6/decoder.blocks.2.mlp_ln.bias (tid)
+  [44] 60f6/decoder.blocks.3.attn.query.bias (tid)
+  [45] 60f6/decoder.blocks.3.attn.value.bias (tid)
+  [46] 60f6/decoder.blocks.3.attn.out.bias (tid)
+  [47] 60f6/decoder.blocks.3.attn_ln.weight (tid)
+  [48] 60f6/decoder.blocks.3.attn_ln.bias (tid)
+  [49] 60f6/decoder.blocks.3.cross_attn.query.bias (tid)
+  [50] 60f6/decoder.blocks.3.cross_attn.value.bias (tid)
+  [51] 60f6/decoder.blocks.3.cross_attn.out.bias (tid)
+  [52] 60f6/decoder.blocks.3.cross_attn_ln.weight (tid)
+  [53] 60f6/decoder.blocks.3.cross_attn_ln.bias (tid)
+  [54] 60f6/decoder.blocks.3.mlp.0.bias (tid)
+  [55] 60f6/decoder.blocks.3.mlp.2.bias (tid)
+  [56] 60f6/decoder.blocks.3.mlp_ln.weight (tid)
+  [57] 60f6/decoder.blocks.3.mlp_ln.bias (tid)
+  [58] 60f6/decoder.ln.weight (tid)
+  [59] 60f6/decoder.ln.bias (tid)
+  [185] 60f6/decoder.blocks.0.attn.kv_cache.k_cache (tid)
+  [186] 60f6/decoder.blocks.0.attn.kv_cache.v_cache (tid)
+  [187] 60f6/decoder.blocks.1.attn.kv_cache.k_cache (tid)
+  [188] 60f6/decoder.blocks.1.attn.kv_cache.v_cache (tid)
+  [189] 60f6/decoder.blocks.2.attn.kv_cache.k_cache (tid)
+  [190] 60f6/decoder.blocks.2.attn.kv_cache.v_cache (tid)
+  [191] 60f6/decoder.blocks.3.attn.kv_cache.k_cache (tid)
+  [192] 60f6/decoder.blocks.3.attn.kv_cache.v_cache (tid)
+  [181] 60f6/encodings (tid)
+  [182] 60f6/positions (tid)
+  [183] 60f6/tokens (tid)
+  [184] 60f6/aten__to_copy_default_27 (tid)
+  [60] 60f6/decoder.blocks.0.attn.query.parametrizations.weight.original1_regrouped (tid)
+  [61] 60f6/decoder.blocks.0.attn.query.parametrizations.weight.original0_to_packed (tid)
+  [62] 60f6/_scalar_-128 (tid)
+  [63] 60f6/decoder.blocks.0.attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [64] 60f6/decoder.blocks.0.attn.key.parametrizations.weight.original1_regrouped (tid)
+  [65] 60f6/decoder.blocks.0.attn.key.parametrizations.weight.original0_to_packed (tid)
+  [66] 60f6/decoder.blocks.0.attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [67] 60f6/decoder.blocks.0.attn.value.parametrizations.weight.original1_regrouped (tid)
+  [68] 60f6/decoder.blocks.0.attn.value.parametrizations.weight.original0_to_packed (tid)
+  [69] 60f6/decoder.blocks.0.attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [70] 60f6/decoder.blocks.0.attn.out.parametrizations.weight.original1_regrouped (tid)
+  [71] 60f6/decoder.blocks.0.attn.out.parametrizations.weight.original0_to_packed (tid)
+  [72] 60f6/decoder.blocks.0.attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [73] 60f6/decoder.blocks.0.cross_attn.query.parametrizations.weight.original1_regrouped (tid)
+  [74] 60f6/decoder.blocks.0.cross_attn.query.parametrizations.weight.original0_to_packed (tid)
+  [75] 60f6/decoder.blocks.0.cross_attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [76] 60f6/decoder.blocks.0.cross_attn.key.parametrizations.weight.original1_regrouped (tid)
+  [77] 60f6/decoder.blocks.0.cross_attn.key.parametrizations.weight.original0_to_packed (tid)
+  [78] 60f6/decoder.blocks.0.cross_attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [79] 60f6/decoder.blocks.0.cross_attn.value.parametrizations.weight.original1_regrouped (tid)
+  [80] 60f6/decoder.blocks.0.cross_attn.value.parametrizations.weight.original0_to_packed (tid)
+  [81] 60f6/decoder.blocks.0.cross_attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [82] 60f6/decoder.blocks.0.cross_attn.out.parametrizations.weight.original1_regrouped (tid)
+  [83] 60f6/decoder.blocks.0.cross_attn.out.parametrizations.weight.original0_to_packed (tid)
+  [84] 60f6/decoder.blocks.0.cross_attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [85] 60f6/decoder.blocks.0.mlp.0.parametrizations.weight.original1_regrouped (tid)
+  [86] 60f6/decoder.blocks.0.mlp.0.parametrizations.weight.original0_to_packed (tid)
+  [87] 60f6/decoder.blocks.0.mlp.0.parametrizations.weight.original2_to_biases_dummy (tid)
+  [88] 60f6/decoder.blocks.0.mlp.2.parametrizations.weight.original1_regrouped (tid)
+  [89] 60f6/decoder.blocks.0.mlp.2.parametrizations.weight.original0_to_packed (tid)
+  [90] 60f6/decoder.blocks.0.mlp.2.parametrizations.weight.original2_to_biases_dummy (tid)
+  [91] 60f6/decoder.blocks.1.attn.query.parametrizations.weight.original1_regrouped (tid)
+  [92] 60f6/decoder.blocks.1.attn.query.parametrizations.weight.original0_to_packed (tid)
+  [93] 60f6/decoder.blocks.1.attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [94] 60f6/decoder.blocks.1.attn.key.parametrizations.weight.original1_regrouped (tid)
+  [95] 60f6/decoder.blocks.1.attn.key.parametrizations.weight.original0_to_packed (tid)
+  [96] 60f6/decoder.blocks.1.attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [97] 60f6/decoder.blocks.1.attn.value.parametrizations.weight.original1_regrouped (tid)
+  [98] 60f6/decoder.blocks.1.attn.value.parametrizations.weight.original0_to_packed (tid)
+  [99] 60f6/decoder.blocks.1.attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [100] 60f6/decoder.blocks.1.attn.out.parametrizations.weight.original1_regrouped (tid)
+  [101] 60f6/decoder.blocks.1.attn.out.parametrizations.weight.original0_to_packed (tid)
+  [102] 60f6/decoder.blocks.1.attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [103] 60f6/decoder.blocks.1.cross_attn.query.parametrizations.weight.original1_regrouped (tid)
+  [104] 60f6/decoder.blocks.1.cross_attn.query.parametrizations.weight.original0_to_packed (tid)
+  [105] 60f6/decoder.blocks.1.cross_attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [106] 60f6/decoder.blocks.1.cross_attn.key.parametrizations.weight.original1_regrouped (tid)
+  [107] 60f6/decoder.blocks.1.cross_attn.key.parametrizations.weight.original0_to_packed (tid)
+  [108] 60f6/decoder.blocks.1.cross_attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [109] 60f6/decoder.blocks.1.cross_attn.value.parametrizations.weight.original1_regrouped (tid)
+  [110] 60f6/decoder.blocks.1.cross_attn.value.parametrizations.weight.original0_to_packed (tid)
+  [111] 60f6/decoder.blocks.1.cross_attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [112] 60f6/decoder.blocks.1.cross_attn.out.parametrizations.weight.original1_regrouped (tid)
+  [113] 60f6/decoder.blocks.1.cross_attn.out.parametrizations.weight.original0_to_packed (tid)
+  [114] 60f6/decoder.blocks.1.cross_attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [115] 60f6/decoder.blocks.1.mlp.0.parametrizations.weight.original1_regrouped (tid)
+  [116] 60f6/decoder.blocks.1.mlp.0.parametrizations.weight.original0_to_packed (tid)
+  [117] 60f6/decoder.blocks.1.mlp.0.parametrizations.weight.original2_to_biases_dummy (tid)
+  [118] 60f6/decoder.blocks.1.mlp.2.parametrizations.weight.original1_regrouped (tid)
+  [119] 60f6/decoder.blocks.1.mlp.2.parametrizations.weight.original0_to_packed (tid)
+  [120] 60f6/decoder.blocks.1.mlp.2.parametrizations.weight.original2_to_biases_dummy (tid)
+  [121] 60f6/decoder.blocks.2.attn.query.parametrizations.weight.original1_regrouped (tid)
+  [122] 60f6/decoder.blocks.2.attn.query.parametrizations.weight.original0_to_packed (tid)
+  [123] 60f6/decoder.blocks.2.attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [124] 60f6/decoder.blocks.2.attn.key.parametrizations.weight.original1_regrouped (tid)
+  [125] 60f6/decoder.blocks.2.attn.key.parametrizations.weight.original0_to_packed (tid)
+  [126] 60f6/decoder.blocks.2.attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [127] 60f6/decoder.blocks.2.attn.value.parametrizations.weight.original1_regrouped (tid)
+  [128] 60f6/decoder.blocks.2.attn.value.parametrizations.weight.original0_to_packed (tid)
+  [129] 60f6/decoder.blocks.2.attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [130] 60f6/decoder.blocks.2.attn.out.parametrizations.weight.original1_regrouped (tid)
+  [131] 60f6/decoder.blocks.2.attn.out.parametrizations.weight.original0_to_packed (tid)
+  [132] 60f6/decoder.blocks.2.attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [133] 60f6/decoder.blocks.2.cross_attn.query.parametrizations.weight.original1_regrouped (tid)
+  [134] 60f6/decoder.blocks.2.cross_attn.query.parametrizations.weight.original0_to_packed (tid)
+  [135] 60f6/decoder.blocks.2.cross_attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [136] 60f6/decoder.blocks.2.cross_attn.key.parametrizations.weight.original1_regrouped (tid)
+  [137] 60f6/decoder.blocks.2.cross_attn.key.parametrizations.weight.original0_to_packed (tid)
+  [138] 60f6/decoder.blocks.2.cross_attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [139] 60f6/decoder.blocks.2.cross_attn.value.parametrizations.weight.original1_regrouped (tid)
+  [140] 60f6/decoder.blocks.2.cross_attn.value.parametrizations.weight.original0_to_packed (tid)
+  [141] 60f6/decoder.blocks.2.cross_attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [142] 60f6/decoder.blocks.2.cross_attn.out.parametrizations.weight.original1_regrouped (tid)
+  [143] 60f6/decoder.blocks.2.cross_attn.out.parametrizations.weight.original0_to_packed (tid)
+  [144] 60f6/decoder.blocks.2.cross_attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [145] 60f6/decoder.blocks.2.mlp.0.parametrizations.weight.original1_regrouped (tid)
+  [146] 60f6/decoder.blocks.2.mlp.0.parametrizations.weight.original0_to_packed (tid)
+  [147] 60f6/decoder.blocks.2.mlp.0.parametrizations.weight.original2_to_biases_dummy (tid)
+  [148] 60f6/decoder.blocks.2.mlp.2.parametrizations.weight.original1_regrouped (tid)
+  [149] 60f6/decoder.blocks.2.mlp.2.parametrizations.weight.original0_to_packed (tid)
+  [150] 60f6/decoder.blocks.2.mlp.2.parametrizations.weight.original2_to_biases_dummy (tid)
+  [151] 60f6/decoder.blocks.3.attn.query.parametrizations.weight.original1_regrouped (tid)
+  [152] 60f6/decoder.blocks.3.attn.query.parametrizations.weight.original0_to_packed (tid)
+  [153] 60f6/decoder.blocks.3.attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [154] 60f6/decoder.blocks.3.attn.key.parametrizations.weight.original1_regrouped (tid)
+  [155] 60f6/decoder.blocks.3.attn.key.parametrizations.weight.original0_to_packed (tid)
+  [156] 60f6/decoder.blocks.3.attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [157] 60f6/decoder.blocks.3.attn.value.parametrizations.weight.original1_regrouped (tid)
+  [158] 60f6/decoder.blocks.3.attn.value.parametrizations.weight.original0_to_packed (tid)
+  [159] 60f6/decoder.blocks.3.attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [160] 60f6/decoder.blocks.3.attn.out.parametrizations.weight.original1_regrouped (tid)
+  [161] 60f6/decoder.blocks.3.attn.out.parametrizations.weight.original0_to_packed (tid)
+  [162] 60f6/decoder.blocks.3.attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [163] 60f6/decoder.blocks.3.cross_attn.query.parametrizations.weight.original1_regrouped (tid)
+  [164] 60f6/decoder.blocks.3.cross_attn.query.parametrizations.weight.original0_to_packed (tid)
+  [165] 60f6/decoder.blocks.3.cross_attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [166] 60f6/decoder.blocks.3.cross_attn.key.parametrizations.weight.original1_regrouped (tid)
+  [167] 60f6/decoder.blocks.3.cross_attn.key.parametrizations.weight.original0_to_packed (tid)
+  [168] 60f6/decoder.blocks.3.cross_attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [169] 60f6/decoder.blocks.3.cross_attn.value.parametrizations.weight.original1_regrouped (tid)
+  [170] 60f6/decoder.blocks.3.cross_attn.value.parametrizations.weight.original0_to_packed (tid)
+  [171] 60f6/decoder.blocks.3.cross_attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [172] 60f6/decoder.blocks.3.cross_attn.out.parametrizations.weight.original1_regrouped (tid)
+  [173] 60f6/decoder.blocks.3.cross_attn.out.parametrizations.weight.original0_to_packed (tid)
+  [174] 60f6/decoder.blocks.3.cross_attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [175] 60f6/decoder.blocks.3.mlp.0.parametrizations.weight.original1_regrouped (tid)
+  [176] 60f6/decoder.blocks.3.mlp.0.parametrizations.weight.original0_to_packed (tid)
+  [177] 60f6/decoder.blocks.3.mlp.0.parametrizations.weight.original2_to_biases_dummy (tid)
+  [178] 60f6/decoder.blocks.3.mlp.2.parametrizations.weight.original1_regrouped (tid)
+  [179] 60f6/decoder.blocks.3.mlp.2.parametrizations.weight.original0_to_packed (tid)
+  [180] 60f6/decoder.blocks.3.mlp.2.parametrizations.weight.original2_to_biases_dummy (tid)
+
+Inputs:
+  tid 181
+  tid 182
+  tid 183
+
+Outputs:
+  tid 184
+======================================================================
+
+
+======================================================================
+MLX DELEGATE 1 (plan index 0)
+======================================================================
+Version: 1
+Constant tensors: 132
+Input tensors: 1
+Output tensors: 1
+Mutable buffer tensors: 0
+Temp tensors: 5
+Values: 0
+Instruction chains: 2
+Main chain idx: 0
+Init chain idx: 1
+
+Chain 0 (main) (191 instructions):
+  [0] ReshapeNode
+      x: tid 132
+      out: tid 134
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': -1}]
+  [1] PadNode
+      x: tid 134
+      out: tid 135
+      pad_width: [{'literal': 0}, {'literal': 0}, {'literal': 0}, {'literal': 0}, {'literal': 200}, {'literal': 200}]
+      mode: constant
+      constant_value: 0.0
+  [2] TransposeNode
+      x: tid 135
+      out: tid 134
+      perm: [0, 2, 1]
+  [3] Conv1DNode
+      x: tid 134
+      w: tid 54
+      out: tid 134
+      stride: 160
+      padding: 0
+      dilation: 1
+      groups: 1
+  [4] TransposeNode
+      x: tid 134
+      out: tid 136
+      perm: [0, 2, 1]
+  [5] ReshapeNode
+      x: tid 136
+      out: tid 135
+      shape: [{'literal': 201}, {'literal': 2}, {'literal': -1}]
+  [6] PowerNode
+      a: tid 135
+      b: tid 55
+      out: tid 135
+  [7] SumNode
+      x: tid 135
+      out: tid 136
+      axes: [1]
+      keepdims: False
+  [8] AddNode
+      a: tid 136
+      b: tid 42
+      out: tid 136
+  [9] SqrtNode
+      x: tid 136
+      out: tid 136
+  [10] TransposeNode
+      x: tid 41
+      out: tid 134
+      perm: [1, 0]
+  [11] AddmmNode
+      mat1: tid 134
+      mat2: tid 136
+      out: tid 135
+      alpha: 1.0
+      beta: 1.0
+  [12] ClipNode
+      x: tid 135
+      out: tid 135
+      a_min: tid 56
+  [13] LogNode
+      x: tid 135
+      out: tid 135
+  [14] MaxNode
+      x: tid 135
+      out: tid 136
+      axes: []
+      keepdims: False
+  [15] SubtractNode
+      a: tid 136
+      b: tid 43
+      out: tid 136
+  [16] MaximumNode
+      a: tid 135
+      b: tid 136
+      out: tid 134
+  [17] AddNode
+      a: tid 134
+      b: tid 44
+      out: tid 134
+  [18] DivideNode
+      a: tid 134
+      b: tid 45
+      out: tid 134
+  [19] PadNode
+      x: tid 134
+      out: tid 136
+      pad_width: [{'literal': 0}, {'literal': 0}, {'literal': 0}, {'literal': 3001}]
+      mode: constant
+      constant_value: 0.0
+  [20] SliceNode
+      x: tid 136
+      out: tid 134
+      axis: {'literal': 1}
+      start: {'literal': 0}
+      stop: {'literal': 3000}
+      step: 1
+  [21] ExpandDimsNode
+      x: tid 134
+      out: tid 135
+      axis: 0
+  [22] AsTypeNode
+      x: tid 135
+      out: tid 136
+      scalar_type: 15
+  [23] TransposeNode
+      x: tid 136
+      out: tid 135
+      perm: [0, 2, 1]
+  [24] Conv1DNode
+      x: tid 135
+      w: tid 57
+      out: tid 135
+      stride: 1
+      padding: 1
+      dilation: 1
+      groups: 1
+  [25] ReshapeNode
+      x: tid 0
+      out: tid 134
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': -1}]
+  [26] AddNode
+      a: tid 135
+      b: tid 134
+      out: tid 135
+  [27] TransposeNode
+      x: tid 135
+      out: tid 137
+      perm: [0, 2, 1]
+  [28] GeluNode
+      x: tid 137
+      out: tid 137
+      approximate: none
+  [29] TransposeNode
+      x: tid 137
+      out: tid 136
+      perm: [0, 2, 1]
+  [30] Conv1DNode
+      x: tid 136
+      w: tid 58
+      out: tid 136
+      stride: 2
+      padding: 1
+      dilation: 1
+      groups: 1
+  [31] ReshapeNode
+      x: tid 1
+      out: tid 135
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': -1}]
+  [32] AddNode
+      a: tid 136
+      b: tid 135
+      out: tid 136
+  [33] TransposeNode
+      x: tid 136
+      out: tid 134
+      perm: [0, 2, 1]
+  [34] GeluNode
+      x: tid 134
+      out: tid 134
+      approximate: none
+  [35] TransposeNode
+      x: tid 134
+      out: tid 136
+      perm: [0, 2, 1]
+  [36] AddNode
+      a: tid 136
+      b: tid 40
+      out: tid 136
+  [37] AsTypeNode
+      x: tid 136
+      out: tid 137
+      scalar_type: 6
+  [38] LayerNormNode
+      x: tid 137
+      out: tid 134
+      weight: tid 5
+      bias: tid 6
+      eps: 9.999999747378752e-06
+  [39] AsTypeNode
+      x: tid 134
+      out: tid 135
+      scalar_type: 15
+  [40] ScatterAddNode
+      x: tid 135
+      indices: tid 60
+      updates: tid 59
+      out: tid 134
+      axis: 62
+  [41] AddNode
+      a: tid 134
+      b: tid 2
+      out: tid 134
+  [42] ScatterAddNode
+      x: tid 135
+      indices: tid 64
+      updates: tid 63
+      out: tid 137
+      axis: 65
+  [43] ScatterAddNode
+      x: tid 135
+      indices: tid 67
+      updates: tid 66
+      out: tid 138
+      axis: 68
+  [44] AddNode
+      a: tid 138
+      b: tid 3
+      out: tid 138
+  [45] ReshapeNode
+      x: tid 134
+      out: tid 135
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [46] TransposeNode
+      x: tid 135
+      out: tid 134
+      perm: [0, 2, 1, 3]
+  [47] ReshapeNode
+      x: tid 137
+      out: tid 135
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [48] TransposeNode
+      x: tid 135
+      out: tid 137
+      perm: [0, 2, 1, 3]
+  [49] ReshapeNode
+      x: tid 138
+      out: tid 135
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [50] TransposeNode
+      x: tid 135
+      out: tid 138
+      perm: [0, 2, 1, 3]
+  [51] AsTypeNode
+      x: tid 46
+      out: tid 135
+      scalar_type: 15
+  [52] MultiplyNode
+      a: tid 134
+      b: tid 135
+      out: tid 134
+  [53] AsTypeNode
+      x: tid 47
+      out: tid 135
+      scalar_type: 15
+  [54] MultiplyNode
+      a: tid 137
+      b: tid 135
+      out: tid 137
+  [55] TransposeNode
+      x: tid 137
+      out: tid 135
+      perm: [0, 1, 3, 2]
+  [56] AddmmNode
+      mat1: tid 134
+      mat2: tid 135
+      out: tid 137
+      alpha: 1.0
+      beta: 1.0
+  [57] AsTypeNode
+      x: tid 137
+      out: tid 135
+      scalar_type: 6
+  [58] SoftmaxNode
+      x: tid 135
+      out: tid 134
+      axis: -1
+      precise: False
+  [59] AsTypeNode
+      x: tid 134
+      out: tid 137
+      scalar_type: 15
+  [60] AddmmNode
+      mat1: tid 137
+      mat2: tid 138
+      out: tid 135
+      alpha: 1.0
+      beta: 1.0
+  [61] TransposeNode
+      x: tid 135
+      out: tid 138
+      perm: [0, 2, 1, 3]
+  [62] ReshapeNode
+      x: tid 138
+      out: tid 134
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 384}]
+  [63] ScatterAddNode
+      x: tid 134
+      indices: tid 70
+      updates: tid 69
+      out: tid 137
+      axis: 71
+  [64] AddNode
+      a: tid 137
+      b: tid 4
+      out: tid 137
+  [65] AddNode
+      a: tid 136
+      b: tid 137
+      out: tid 135
+  [66] AsTypeNode
+      x: tid 135
+      out: tid 138
+      scalar_type: 6
+  [67] LayerNormNode
+      x: tid 138
+      out: tid 137
+      weight: tid 9
+      bias: tid 10
+      eps: 9.999999747378752e-06
+  [68] AsTypeNode
+      x: tid 137
+      out: tid 134
+      scalar_type: 15
+  [69] ScatterAddNode
+      x: tid 134
+      indices: tid 73
+      updates: tid 72
+      out: tid 136
+      axis: 74
+  [70] AddNode
+      a: tid 136
+      b: tid 7
+      out: tid 136
+  [71] GeluNode
+      x: tid 136
+      out: tid 136
+      approximate: none
+  [72] ScatterAddNode
+      x: tid 136
+      indices: tid 76
+      updates: tid 75
+      out: tid 138
+      axis: 77
+  [73] AddNode
+      a: tid 138
+      b: tid 8
+      out: tid 138
+  [74] AddNode
+      a: tid 135
+      b: tid 138
+      out: tid 137
+  [75] AsTypeNode
+      x: tid 137
+      out: tid 134
+      scalar_type: 6
+  [76] LayerNormNode
+      x: tid 134
+      out: tid 136
+      weight: tid 14
+      bias: tid 15
+      eps: 9.999999747378752e-06
+  [77] AsTypeNode
+      x: tid 136
+      out: tid 138
+      scalar_type: 15
+  [78] ScatterAddNode
+      x: tid 138
+      indices: tid 79
+      updates: tid 78
+      out: tid 135
+      axis: 80
+  [79] AddNode
+      a: tid 135
+      b: tid 11
+      out: tid 135
+  [80] ScatterAddNode
+      x: tid 138
+      indices: tid 82
+      updates: tid 81
+      out: tid 134
+      axis: 83
+  [81] ScatterAddNode
+      x: tid 138
+      indices: tid 85
+      updates: tid 84
+      out: tid 136
+      axis: 86
+  [82] AddNode
+      a: tid 136
+      b: tid 12
+      out: tid 136
+  [83] ReshapeNode
+      x: tid 135
+      out: tid 138
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [84] TransposeNode
+      x: tid 138
+      out: tid 135
+      perm: [0, 2, 1, 3]
+  [85] ReshapeNode
+      x: tid 134
+      out: tid 138
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [86] TransposeNode
+      x: tid 138
+      out: tid 134
+      perm: [0, 2, 1, 3]
+  [87] ReshapeNode
+      x: tid 136
+      out: tid 138
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [88] TransposeNode
+      x: tid 138
+      out: tid 136
+      perm: [0, 2, 1, 3]
+  [89] AsTypeNode
+      x: tid 48
+      out: tid 138
+      scalar_type: 15
+  [90] MultiplyNode
+      a: tid 135
+      b: tid 138
+      out: tid 135
+  [91] AsTypeNode
+      x: tid 49
+      out: tid 138
+      scalar_type: 15
+  [92] MultiplyNode
+      a: tid 134
+      b: tid 138
+      out: tid 134
+  [93] TransposeNode
+      x: tid 134
+      out: tid 138
+      perm: [0, 1, 3, 2]
+  [94] AddmmNode
+      mat1: tid 135
+      mat2: tid 138
+      out: tid 134
+      alpha: 1.0
+      beta: 1.0
+  [95] AsTypeNode
+      x: tid 134
+      out: tid 138
+      scalar_type: 6
+  [96] SoftmaxNode
+      x: tid 138
+      out: tid 135
+      axis: -1
+      precise: False
+  [97] AsTypeNode
+      x: tid 135
+      out: tid 134
+      scalar_type: 15
+  [98] AddmmNode
+      mat1: tid 134
+      mat2: tid 136
+      out: tid 138
+      alpha: 1.0
+      beta: 1.0
+  [99] TransposeNode
+      x: tid 138
+      out: tid 136
+      perm: [0, 2, 1, 3]
+  [100] ReshapeNode
+      x: tid 136
+      out: tid 135
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 384}]
+  [101] ScatterAddNode
+      x: tid 135
+      indices: tid 88
+      updates: tid 87
+      out: tid 134
+      axis: 89
+  [102] AddNode
+      a: tid 134
+      b: tid 13
+      out: tid 134
+  [103] AddNode
+      a: tid 137
+      b: tid 134
+      out: tid 138
+  [104] AsTypeNode
+      x: tid 138
+      out: tid 136
+      scalar_type: 6
+  [105] LayerNormNode
+      x: tid 136
+      out: tid 135
+      weight: tid 18
+      bias: tid 19
+      eps: 9.999999747378752e-06
+  [106] AsTypeNode
+      x: tid 135
+      out: tid 134
+      scalar_type: 15
+  [107] ScatterAddNode
+      x: tid 134
+      indices: tid 91
+      updates: tid 90
+      out: tid 137
+      axis: 92
+  [108] AddNode
+      a: tid 137
+      b: tid 16
+      out: tid 137
+  [109] GeluNode
+      x: tid 137
+      out: tid 137
+      approximate: none
+  [110] ScatterAddNode
+      x: tid 137
+      indices: tid 94
+      updates: tid 93
+      out: tid 135
+      axis: 95
+  [111] AddNode
+      a: tid 135
+      b: tid 17
+      out: tid 135
+  [112] AddNode
+      a: tid 138
+      b: tid 135
+      out: tid 136
+  [113] AsTypeNode
+      x: tid 136
+      out: tid 135
+      scalar_type: 6
+  [114] LayerNormNode
+      x: tid 135
+      out: tid 134
+      weight: tid 23
+      bias: tid 24
+      eps: 9.999999747378752e-06
+  [115] AsTypeNode
+      x: tid 134
+      out: tid 137
+      scalar_type: 15
+  [116] ScatterAddNode
+      x: tid 137
+      indices: tid 97
+      updates: tid 96
+      out: tid 138
+      axis: 98
+  [117] AddNode
+      a: tid 138
+      b: tid 20
+      out: tid 138
+  [118] ScatterAddNode
+      x: tid 137
+      indices: tid 100
+      updates: tid 99
+      out: tid 135
+      axis: 101
+  [119] ScatterAddNode
+      x: tid 137
+      indices: tid 103
+      updates: tid 102
+      out: tid 134
+      axis: 104
+  [120] AddNode
+      a: tid 134
+      b: tid 21
+      out: tid 134
+  [121] ReshapeNode
+      x: tid 138
+      out: tid 137
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [122] TransposeNode
+      x: tid 137
+      out: tid 138
+      perm: [0, 2, 1, 3]
+  [123] ReshapeNode
+      x: tid 135
+      out: tid 137
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [124] TransposeNode
+      x: tid 137
+      out: tid 135
+      perm: [0, 2, 1, 3]
+  [125] ReshapeNode
+      x: tid 134
+      out: tid 137
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [126] TransposeNode
+      x: tid 137
+      out: tid 134
+      perm: [0, 2, 1, 3]
+  [127] AsTypeNode
+      x: tid 50
+      out: tid 137
+      scalar_type: 15
+  [128] MultiplyNode
+      a: tid 138
+      b: tid 137
+      out: tid 138
+  [129] AsTypeNode
+      x: tid 51
+      out: tid 137
+      scalar_type: 15
+  [130] MultiplyNode
+      a: tid 135
+      b: tid 137
+      out: tid 135
+  [131] TransposeNode
+      x: tid 135
+      out: tid 137
+      perm: [0, 1, 3, 2]
+  [132] AddmmNode
+      mat1: tid 138
+      mat2: tid 137
+      out: tid 135
+      alpha: 1.0
+      beta: 1.0
+  [133] AsTypeNode
+      x: tid 135
+      out: tid 137
+      scalar_type: 6
+  [134] SoftmaxNode
+      x: tid 137
+      out: tid 138
+      axis: -1
+      precise: False
+  [135] AsTypeNode
+      x: tid 138
+      out: tid 135
+      scalar_type: 15
+  [136] AddmmNode
+      mat1: tid 135
+      mat2: tid 134
+      out: tid 137
+      alpha: 1.0
+      beta: 1.0
+  [137] TransposeNode
+      x: tid 137
+      out: tid 134
+      perm: [0, 2, 1, 3]
+  [138] ReshapeNode
+      x: tid 134
+      out: tid 138
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 384}]
+  [139] ScatterAddNode
+      x: tid 138
+      indices: tid 106
+      updates: tid 105
+      out: tid 135
+      axis: 107
+  [140] AddNode
+      a: tid 135
+      b: tid 22
+      out: tid 135
+  [141] AddNode
+      a: tid 136
+      b: tid 135
+      out: tid 137
+  [142] AsTypeNode
+      x: tid 137
+      out: tid 134
+      scalar_type: 6
+  [143] LayerNormNode
+      x: tid 134
+      out: tid 138
+      weight: tid 27
+      bias: tid 28
+      eps: 9.999999747378752e-06
+  [144] AsTypeNode
+      x: tid 138
+      out: tid 135
+      scalar_type: 15
+  [145] ScatterAddNode
+      x: tid 135
+      indices: tid 109
+      updates: tid 108
+      out: tid 136
+      axis: 110
+  [146] AddNode
+      a: tid 136
+      b: tid 25
+      out: tid 136
+  [147] GeluNode
+      x: tid 136
+      out: tid 136
+      approximate: none
+  [148] ScatterAddNode
+      x: tid 136
+      indices: tid 112
+      updates: tid 111
+      out: tid 138
+      axis: 113
+  [149] AddNode
+      a: tid 138
+      b: tid 26
+      out: tid 138
+  [150] AddNode
+      a: tid 137
+      b: tid 138
+      out: tid 134
+  [151] AsTypeNode
+      x: tid 134
+      out: tid 138
+      scalar_type: 6
+  [152] LayerNormNode
+      x: tid 138
+      out: tid 135
+      weight: tid 32
+      bias: tid 33
+      eps: 9.999999747378752e-06
+  [153] AsTypeNode
+      x: tid 135
+      out: tid 136
+      scalar_type: 15
+  [154] ScatterAddNode
+      x: tid 136
+      indices: tid 115
+      updates: tid 114
+      out: tid 137
+      axis: 116
+  [155] AddNode
+      a: tid 137
+      b: tid 29
+      out: tid 137
+  [156] ScatterAddNode
+      x: tid 136
+      indices: tid 118
+      updates: tid 117
+      out: tid 138
+      axis: 119
+  [157] ScatterAddNode
+      x: tid 136
+      indices: tid 121
+      updates: tid 120
+      out: tid 135
+      axis: 122
+  [158] AddNode
+      a: tid 135
+      b: tid 30
+      out: tid 135
+  [159] ReshapeNode
+      x: tid 137
+      out: tid 136
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [160] TransposeNode
+      x: tid 136
+      out: tid 137
+      perm: [0, 2, 1, 3]
+  [161] ReshapeNode
+      x: tid 138
+      out: tid 136
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [162] TransposeNode
+      x: tid 136
+      out: tid 138
+      perm: [0, 2, 1, 3]
+  [163] ReshapeNode
+      x: tid 135
+      out: tid 136
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [164] TransposeNode
+      x: tid 136
+      out: tid 135
+      perm: [0, 2, 1, 3]
+  [165] AsTypeNode
+      x: tid 52
+      out: tid 136
+      scalar_type: 15
+  [166] MultiplyNode
+      a: tid 137
+      b: tid 136
+      out: tid 137
+  [167] AsTypeNode
+      x: tid 53
+      out: tid 136
+      scalar_type: 15
+  [168] MultiplyNode
+      a: tid 138
+      b: tid 136
+      out: tid 138
+  [169] TransposeNode
+      x: tid 138
+      out: tid 136
+      perm: [0, 1, 3, 2]
+  [170] AddmmNode
+      mat1: tid 137
+      mat2: tid 136
+      out: tid 138
+      alpha: 1.0
+      beta: 1.0
+  [171] AsTypeNode
+      x: tid 138
+      out: tid 136
+      scalar_type: 6
+  [172] SoftmaxNode
+      x: tid 136
+      out: tid 137
+      axis: -1
+      precise: False
+  [173] AsTypeNode
+      x: tid 137
+      out: tid 138
+      scalar_type: 15
+  [174] AddmmNode
+      mat1: tid 138
+      mat2: tid 135
+      out: tid 136
+      alpha: 1.0
+      beta: 1.0
+  [175] TransposeNode
+      x: tid 136
+      out: tid 135
+      perm: [0, 2, 1, 3]
+  [176] ReshapeNode
+      x: tid 135
+      out: tid 137
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 384}]
+  [177] ScatterAddNode
+      x: tid 137
+      indices: tid 124
+      updates: tid 123
+      out: tid 138
+      axis: 125
+  [178] AddNode
+      a: tid 138
+      b: tid 31
+      out: tid 138
+  [179] AddNode
+      a: tid 134
+      b: tid 138
+      out: tid 136
+  [180] AsTypeNode
+      x: tid 136
+      out: tid 135
+      scalar_type: 6
+  [181] LayerNormNode
+      x: tid 135
+      out: tid 137
+      weight: tid 36
+      bias: tid 37
+      eps: 9.999999747378752e-06
+  [182] AsTypeNode
+      x: tid 137
+      out: tid 138
+      scalar_type: 15
+  [183] ScatterAddNode
+      x: tid 138
+      indices: tid 127
+      updates: tid 126
+      out: tid 134
+      axis: 128
+  [184] AddNode
+      a: tid 134
+      b: tid 34
+      out: tid 134
+  [185] GeluNode
+      x: tid 134
+      out: tid 134
+      approximate: none
+  [186] ScatterAddNode
+      x: tid 134
+      indices: tid 130
+      updates: tid 129
+      out: tid 137
+      axis: 131
+  [187] AddNode
+      a: tid 137
+      b: tid 35
+      out: tid 137
+  [188] AddNode
+      a: tid 136
+      b: tid 137
+      out: tid 135
+  [189] AsTypeNode
+      x: tid 135
+      out: tid 137
+      scalar_type: 6
+  [190] LayerNormNode
+      x: tid 137
+      out: tid 133
+      weight: tid 38
+      bias: tid 39
+      eps: 9.999999747378752e-06
+
+Chain 1 (init) (24 instructions):
+  [0] MultiplyNode
+      a: tid 59
+      b: tid 61
+      out: tid 62
+  [1] MultiplyNode
+      a: tid 63
+      b: tid 61
+      out: tid 65
+  [2] MultiplyNode
+      a: tid 66
+      b: tid 61
+      out: tid 68
+  [3] MultiplyNode
+      a: tid 69
+      b: tid 61
+      out: tid 71
+  [4] MultiplyNode
+      a: tid 72
+      b: tid 61
+      out: tid 74
+  [5] MultiplyNode
+      a: tid 75
+      b: tid 61
+      out: tid 77
+  [6] MultiplyNode
+      a: tid 78
+      b: tid 61
+      out: tid 80
+  [7] MultiplyNode
+      a: tid 81
+      b: tid 61
+      out: tid 83
+  [8] MultiplyNode
+      a: tid 84
+      b: tid 61
+      out: tid 86
+  [9] MultiplyNode
+      a: tid 87
+      b: tid 61
+      out: tid 89
+  [10] MultiplyNode
+      a: tid 90
+      b: tid 61
+      out: tid 92
+  [11] MultiplyNode
+      a: tid 93
+      b: tid 61
+      out: tid 95
+  [12] MultiplyNode
+      a: tid 96
+      b: tid 61
+      out: tid 98
+  [13] MultiplyNode
+      a: tid 99
+      b: tid 61
+      out: tid 101
+  [14] MultiplyNode
+      a: tid 102
+      b: tid 61
+      out: tid 104
+  [15] MultiplyNode
+      a: tid 105
+      b: tid 61
+      out: tid 107
+  [16] MultiplyNode
+      a: tid 108
+      b: tid 61
+      out: tid 110
+  [17] MultiplyNode
+      a: tid 111
+      b: tid 61
+      out: tid 113
+  [18] MultiplyNode
+      a: tid 114
+      b: tid 61
+      out: tid 116
+  [19] MultiplyNode
+      a: tid 117
+      b: tid 61
+      out: tid 119
+  [20] MultiplyNode
+      a: tid 120
+      b: tid 61
+      out: tid 122
+  [21] MultiplyNode
+      a: tid 123
+      b: tid 61
+      out: tid 125
+  [22] MultiplyNode
+      a: tid 126
+      b: tid 61
+      out: tid 128
+  [23] MultiplyNode
+      a: tid 129
+      b: tid 61
+      out: tid 131
+
+Named Slots:
+  [0] 3475/_encoder.conv1.bias (tid)
+  [1] 3475/_encoder.conv2.bias (tid)
+  [2] 3475/_encoder.blocks.0.attn.query.bias (tid)
+  [3] 3475/_encoder.blocks.0.attn.value.bias (tid)
+  [4] 3475/_encoder.blocks.0.attn.out.bias (tid)
+  [5] 3475/_encoder.blocks.0.attn_ln.weight (tid)
+  [6] 3475/_encoder.blocks.0.attn_ln.bias (tid)
+  [7] 3475/_encoder.blocks.0.mlp.0.bias (tid)
+  [8] 3475/_encoder.blocks.0.mlp.2.bias (tid)
+  [9] 3475/_encoder.blocks.0.mlp_ln.weight (tid)
+  [10] 3475/_encoder.blocks.0.mlp_ln.bias (tid)
+  [11] 3475/_encoder.blocks.1.attn.query.bias (tid)
+  [12] 3475/_encoder.blocks.1.attn.value.bias (tid)
+  [13] 3475/_encoder.blocks.1.attn.out.bias (tid)
+  [14] 3475/_encoder.blocks.1.attn_ln.weight (tid)
+  [15] 3475/_encoder.blocks.1.attn_ln.bias (tid)
+  [16] 3475/_encoder.blocks.1.mlp.0.bias (tid)
+  [17] 3475/_encoder.blocks.1.mlp.2.bias (tid)
+  [18] 3475/_encoder.blocks.1.mlp_ln.weight (tid)
+  [19] 3475/_encoder.blocks.1.mlp_ln.bias (tid)
+  [20] 3475/_encoder.blocks.2.attn.query.bias (tid)
+  [21] 3475/_encoder.blocks.2.attn.value.bias (tid)
+  [22] 3475/_encoder.blocks.2.attn.out.bias (tid)
+  [23] 3475/_encoder.blocks.2.attn_ln.weight (tid)
+  [24] 3475/_encoder.blocks.2.attn_ln.bias (tid)
+  [25] 3475/_encoder.blocks.2.mlp.0.bias (tid)
+  [26] 3475/_encoder.blocks.2.mlp.2.bias (tid)
+  [27] 3475/_encoder.blocks.2.mlp_ln.weight (tid)
+  [28] 3475/_encoder.blocks.2.mlp_ln.bias (tid)
+  [29] 3475/_encoder.blocks.3.attn.query.bias (tid)
+  [30] 3475/_encoder.blocks.3.attn.value.bias (tid)
+  [31] 3475/_encoder.blocks.3.attn.out.bias (tid)
+  [32] 3475/_encoder.blocks.3.attn_ln.weight (tid)
+  [33] 3475/_encoder.blocks.3.attn_ln.bias (tid)
+  [34] 3475/_encoder.blocks.3.mlp.0.bias (tid)
+  [35] 3475/_encoder.blocks.3.mlp.2.bias (tid)
+  [36] 3475/_encoder.blocks.3.mlp_ln.weight (tid)
+  [37] 3475/_encoder.blocks.3.mlp_ln.bias (tid)
+  [38] 3475/_encoder.ln_post.weight (tid)
+  [39] 3475/_encoder.ln_post.bias (tid)
+  [40] 3475/_encoder.positional_embedding (tid)
+  [41] 3475/_preprocessor.mel_filters (tid)
+  [42] 3475/_lifted_tensor_constant12 (tid)
+  [43] 3475/_lifted_tensor_constant13 (tid)
+  [44] 3475/_lifted_tensor_constant14 (tid)
+  [45] 3475/_lifted_tensor_constant15 (tid)
+  [46] 3475/_lifted_tensor_constant16 (tid)
+  [47] 3475/_lifted_tensor_constant17 (tid)
+  [48] 3475/_lifted_tensor_constant18 (tid)
+  [49] 3475/_lifted_tensor_constant19 (tid)
+  [50] 3475/_lifted_tensor_constant20 (tid)
+  [51] 3475/_lifted_tensor_constant21 (tid)
+  [52] 3475/_lifted_tensor_constant22 (tid)
+  [53] 3475/_lifted_tensor_constant23 (tid)
+  [132] 3475/waveform (tid)
+  [133] 3475/aten_layer_norm_default_8 (tid)
+  [54] 3475/_preprocessor.stft_kernel_channel_last (tid)
+  [55] 3475/_scalar_2 (tid)
+  [56] 3475/_scalar_1e-10 (tid)
+  [57] 3475/_encoder.conv1.weight_channel_last (tid)
+  [58] 3475/_encoder.conv2.weight_channel_last (tid)
+  [59] 3475/_encoder.blocks.0.attn.query.parametrizations.weight.original1_regrouped (tid)
+  [60] 3475/_encoder.blocks.0.attn.query.parametrizations.weight.original0_to_packed (tid)
+  [61] 3475/_scalar_-128 (tid)
+  [62] 3475/_encoder.blocks.0.attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [63] 3475/_encoder.blocks.0.attn.key.parametrizations.weight.original1_regrouped (tid)
+  [64] 3475/_encoder.blocks.0.attn.key.parametrizations.weight.original0_to_packed (tid)
+  [65] 3475/_encoder.blocks.0.attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [66] 3475/_encoder.blocks.0.attn.value.parametrizations.weight.original1_regrouped (tid)
+  [67] 3475/_encoder.blocks.0.attn.value.parametrizations.weight.original0_to_packed (tid)
+  [68] 3475/_encoder.blocks.0.attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [69] 3475/_encoder.blocks.0.attn.out.parametrizations.weight.original1_regrouped (tid)
+  [70] 3475/_encoder.blocks.0.attn.out.parametrizations.weight.original0_to_packed (tid)
+  [71] 3475/_encoder.blocks.0.attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [72] 3475/_encoder.blocks.0.mlp.0.parametrizations.weight.original1_regrouped (tid)
+  [73] 3475/_encoder.blocks.0.mlp.0.parametrizations.weight.original0_to_packed (tid)
+  [74] 3475/_encoder.blocks.0.mlp.0.parametrizations.weight.original2_to_biases_dummy (tid)
+  [75] 3475/_encoder.blocks.0.mlp.2.parametrizations.weight.original1_regrouped (tid)
+  [76] 3475/_encoder.blocks.0.mlp.2.parametrizations.weight.original0_to_packed (tid)
+  [77] 3475/_encoder.blocks.0.mlp.2.parametrizations.weight.original2_to_biases_dummy (tid)
+  [78] 3475/_encoder.blocks.1.attn.query.parametrizations.weight.original1_regrouped (tid)
+  [79] 3475/_encoder.blocks.1.attn.query.parametrizations.weight.original0_to_packed (tid)
+  [80] 3475/_encoder.blocks.1.attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [81] 3475/_encoder.blocks.1.attn.key.parametrizations.weight.original1_regrouped (tid)
+  [82] 3475/_encoder.blocks.1.attn.key.parametrizations.weight.original0_to_packed (tid)
+  [83] 3475/_encoder.blocks.1.attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [84] 3475/_encoder.blocks.1.attn.value.parametrizations.weight.original1_regrouped (tid)
+  [85] 3475/_encoder.blocks.1.attn.value.parametrizations.weight.original0_to_packed (tid)
+  [86] 3475/_encoder.blocks.1.attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [87] 3475/_encoder.blocks.1.attn.out.parametrizations.weight.original1_regrouped (tid)
+  [88] 3475/_encoder.blocks.1.attn.out.parametrizations.weight.original0_to_packed (tid)
+  [89] 3475/_encoder.blocks.1.attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [90] 3475/_encoder.blocks.1.mlp.0.parametrizations.weight.original1_regrouped (tid)
+  [91] 3475/_encoder.blocks.1.mlp.0.parametrizations.weight.original0_to_packed (tid)
+  [92] 3475/_encoder.blocks.1.mlp.0.parametrizations.weight.original2_to_biases_dummy (tid)
+  [93] 3475/_encoder.blocks.1.mlp.2.parametrizations.weight.original1_regrouped (tid)
+  [94] 3475/_encoder.blocks.1.mlp.2.parametrizations.weight.original0_to_packed (tid)
+  [95] 3475/_encoder.blocks.1.mlp.2.parametrizations.weight.original2_to_biases_dummy (tid)
+  [96] 3475/_encoder.blocks.2.attn.query.parametrizations.weight.original1_regrouped (tid)
+  [97] 3475/_encoder.blocks.2.attn.query.parametrizations.weight.original0_to_packed (tid)
+  [98] 3475/_encoder.blocks.2.attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [99] 3475/_encoder.blocks.2.attn.key.parametrizations.weight.original1_regrouped (tid)
+  [100] 3475/_encoder.blocks.2.attn.key.parametrizations.weight.original0_to_packed (tid)
+  [101] 3475/_encoder.blocks.2.attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [102] 3475/_encoder.blocks.2.attn.value.parametrizations.weight.original1_regrouped (tid)
+  [103] 3475/_encoder.blocks.2.attn.value.parametrizations.weight.original0_to_packed (tid)
+  [104] 3475/_encoder.blocks.2.attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [105] 3475/_encoder.blocks.2.attn.out.parametrizations.weight.original1_regrouped (tid)
+  [106] 3475/_encoder.blocks.2.attn.out.parametrizations.weight.original0_to_packed (tid)
+  [107] 3475/_encoder.blocks.2.attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [108] 3475/_encoder.blocks.2.mlp.0.parametrizations.weight.original1_regrouped (tid)
+  [109] 3475/_encoder.blocks.2.mlp.0.parametrizations.weight.original0_to_packed (tid)
+  [110] 3475/_encoder.blocks.2.mlp.0.parametrizations.weight.original2_to_biases_dummy (tid)
+  [111] 3475/_encoder.blocks.2.mlp.2.parametrizations.weight.original1_regrouped (tid)
+  [112] 3475/_encoder.blocks.2.mlp.2.parametrizations.weight.original0_to_packed (tid)
+  [113] 3475/_encoder.blocks.2.mlp.2.parametrizations.weight.original2_to_biases_dummy (tid)
+  [114] 3475/_encoder.blocks.3.attn.query.parametrizations.weight.original1_regrouped (tid)
+  [115] 3475/_encoder.blocks.3.attn.query.parametrizations.weight.original0_to_packed (tid)
+  [116] 3475/_encoder.blocks.3.attn.query.parametrizations.weight.original2_to_biases_dummy (tid)
+  [117] 3475/_encoder.blocks.3.attn.key.parametrizations.weight.original1_regrouped (tid)
+  [118] 3475/_encoder.blocks.3.attn.key.parametrizations.weight.original0_to_packed (tid)
+  [119] 3475/_encoder.blocks.3.attn.key.parametrizations.weight.original2_to_biases_dummy (tid)
+  [120] 3475/_encoder.blocks.3.attn.value.parametrizations.weight.original1_regrouped (tid)
+  [121] 3475/_encoder.blocks.3.attn.value.parametrizations.weight.original0_to_packed (tid)
+  [122] 3475/_encoder.blocks.3.attn.value.parametrizations.weight.original2_to_biases_dummy (tid)
+  [123] 3475/_encoder.blocks.3.attn.out.parametrizations.weight.original1_regrouped (tid)
+  [124] 3475/_encoder.blocks.3.attn.out.parametrizations.weight.original0_to_packed (tid)
+  [125] 3475/_encoder.blocks.3.attn.out.parametrizations.weight.original2_to_biases_dummy (tid)
+  [126] 3475/_encoder.blocks.3.mlp.0.parametrizations.weight.original1_regrouped (tid)
+  [127] 3475/_encoder.blocks.3.mlp.0.parametrizations.weight.original0_to_packed (tid)
+  [128] 3475/_encoder.blocks.3.mlp.0.parametrizations.weight.original2_to_biases_dummy (tid)
+  [129] 3475/_encoder.blocks.3.mlp.2.parametrizations.weight.original1_regrouped (tid)
+  [130] 3475/_encoder.blocks.3.mlp.2.parametrizations.weight.original0_to_packed (tid)
+  [131] 3475/_encoder.blocks.3.mlp.2.parametrizations.weight.original2_to_biases_dummy (tid)
+
+Inputs:
+  tid 132
+
+Outputs:
+  tid 133
+======================================================================
+

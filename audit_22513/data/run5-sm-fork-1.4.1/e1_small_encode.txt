@@ -1,0 +1,60 @@
+I 00:00:00.023583 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.023679 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.023687 executorch:executor_runner.cpp:386] Resetting threadpool with num threads = 3
+I 00:00:00.023688 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.023716 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.023788 executorch:threadpool.cpp:66] Resetting threadpool to 3 threads.
+I 00:00:00.024025 executorch:executor_runner.cpp:521] Model file small.pte is loaded.
+I 00:00:00.024031 executorch:executor_runner.cpp:531] Using method encode
+I 00:00:00.024033 executorch:executor_runner.cpp:605] Setting up CPU planned buffer 0, size 6528000.
+I 00:00:00.055219 executorch:MLXBackend.cpp:259] MLX Metal cache limit set to 256MB
+I 00:00:00.085337 executorch:MLXExecutor.h:848] MLX constants: 364 loaded, 0 copied by MLX (0 bytes resident twice)
+I 00:00:01.100796 executorch:executor_runner.cpp:342] [after load_method] rss 110.6 MiB, phys_footprint 105.4 MiB, lifetime_max_phys_footprint 105.4 MiB
+I 00:00:01.100820 executorch:executor_runner.cpp:693] Model loaded in 1076.916208 ms.
+I 00:00:03.824170 executorch:executor_runner.cpp:849] Iteration 1 of 5: 2721.026000 ms
+I 00:00:04.282257 executorch:executor_runner.cpp:849] Iteration 2 of 5: 457.795667 ms
+I 00:00:04.731330 executorch:executor_runner.cpp:849] Iteration 3 of 5: 448.955084 ms
+I 00:00:05.188143 executorch:executor_runner.cpp:849] Iteration 4 of 5: 456.587958 ms
+I 00:00:05.643610 executorch:executor_runner.cpp:849] Iteration 5 of 5: 455.237250 ms
+I 00:00:05.643645 executorch:executor_runner.cpp:858] Model executed successfully 5 time(s) in 4539.601959 ms.
+I 00:00:05.643665 executorch:executor_runner.cpp:342] [after execute loop] rss 122.5 MiB, phys_footprint 378.4 MiB, lifetime_max_phys_footprint 905.1 MiB
+I 00:00:05.643671 executorch:executor_runner.cpp:863] 1 outputs: 
+OutputX 0: tensor(sizes=[1, 1500, 768], [
+  -0.134995, -1.41283, -0.378591, -1.23219, -1.31963, -0.751276, 1.53395, -0.899541, -1.05885, -0.523726, 
+  0.540485, -0.14456, -1.57605, -1.24444, -1.21506, -0.0882612, 0.342233, -0.871709, -0.142021, -1.23581, 
+  0.657435, 0.845134, -0.016083, -0.672375, 0.370085, -0.511034, -0.353244, -0.355693, -0.512197, -0.273659, 
+  -0.636319, 0.693572, -2.04674, 0.375055, -0.102021, -0.0726631, 0.280735, -0.196584, 0.316801, -0.383768, 
+  -0.22389, -0.65862, -0.0634809, 0.431861, 0.793419, -0.822269, -0.756037, -7.73458, -0.0488241, -1.09519, 
+  0.576999, 0.0877554, -0.225307, -0.11368, -0.914506, -0.333626, -1.63797, -0.87334, -0.20632, -0.692625, 
+  -0.0297082, -2.11994, -1.59399, -0.204512, -0.181802, 0.53391, -0.553659, -0.456892, -0.0470929, -0.556041, 
+  0.310575, 1.83449, 0.177584, 0.270868, -0.556273, 2.88946, 0.61471, -0.26942, 0.644285, 0.49349, 
+  0.649894, -0.285893, -0.0750617, 0.0343321, -0.0817732, -0.32315, -0.969044, -1.05016, 0.270649, -0.853874, 
+  -0.20039, -0.00864082, 0.271298, -0.509704, -0.515611, 0.1451, 0.524638, -6.28282, -0.858635, -0.169603, 
+  ...,
+  -0.211587, 0.96937, -0.190842, 1.77939, 0.565183, -0.747633, -1.71285, 0.0108202, -0.377708, 0.105663, 
+  -1.48217, 2.34336, 0.508464, 0.830576, 0.517742, 1.26744, 0.590206, 0.303186, 3.1439, -1.14254, 
+  1.00802, -0.611176, 0.539492, 0.843175, -0.412712, 0.619039, 0.51454, 0.0309719, -0.162385, 0.312324, 
+  1.07948, 0.243528, -1.00665, 1.56613, -1.8442, -1.02688, -0.830194, -0.426246, -0.62798, -0.0821906, 
+  0.337786, 0.495414, 0.663426, -1.33036, 0.886259, 0.950264, -0.397038, -0.846751, -0.100917, 0.191188, 
+  9.36567, -0.265364, 0.272611, -1.01888, 0.447504, -0.429706, 0.456102, 1.55912, -0.106266, 0.991251, 
+  -0.20276, -1.48244, 0.24027, 0.525981, 0.796829, 0.880724, 0.430079, 0.810806, 0.540382, -0.102877, 
+  0.271613, 0.705127, 0.333493, -0.27694, 1.6939, 0.877801, -0.871401, -1.64631, 1.1853, 1.39652, 
+  1.06849, 0.668174, -0.0756568, -0.106339, -0.391669, -0.693281, 0.131433, -0.353065, 0.503541, 0.834991, 
+  -1.14683, 0.34599, 1.12217, 0.976316, -0.301211, -1.36939, -0.532569, -1.33425, -0.129799, -0.0725688, 
+])
+        5.67 real         0.16 user         0.64 sys
+           133136384  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                9781  page reclaims
+                 212  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  92  voluntary context switches
+                1638  involuntary context switches
+           949028928  peak memory footprint

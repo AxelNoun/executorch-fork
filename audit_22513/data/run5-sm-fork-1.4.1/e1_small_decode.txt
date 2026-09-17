@@ -1,0 +1,60 @@
+I 00:00:00.001189 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.001227 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.001244 executorch:executor_runner.cpp:386] Resetting threadpool with num threads = 3
+I 00:00:00.001246 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.001270 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.001322 executorch:threadpool.cpp:66] Resetting threadpool to 3 threads.
+I 00:00:00.001524 executorch:executor_runner.cpp:521] Model file small.pte is loaded.
+I 00:00:00.001527 executorch:executor_runner.cpp:531] Using method decode
+I 00:00:00.001530 executorch:executor_runner.cpp:605] Setting up CPU planned buffer 0, size 4815504.
+I 00:00:00.012614 executorch:MLXBackend.cpp:259] MLX Metal cache limit set to 256MB
+I 00:00:00.081566 executorch:MLXExecutor.h:848] MLX constants: 533 loaded, 0 copied by MLX (0 bytes resident twice)
+I 00:00:00.178615 executorch:executor_runner.cpp:342] [after load_method] rss 208.2 MiB, phys_footprint 211.7 MiB, lifetime_max_phys_footprint 211.7 MiB
+I 00:00:00.178634 executorch:executor_runner.cpp:693] Model loaded in 177.247583 ms.
+I 00:00:00.656202 executorch:executor_runner.cpp:849] Iteration 1 of 5: 476.754125 ms
+I 00:00:00.709727 executorch:executor_runner.cpp:849] Iteration 2 of 5: 53.238083 ms
+I 00:00:00.758043 executorch:executor_runner.cpp:849] Iteration 3 of 5: 47.852625 ms
+I 00:00:00.806383 executorch:executor_runner.cpp:849] Iteration 4 of 5: 47.910458 ms
+I 00:00:00.854130 executorch:executor_runner.cpp:849] Iteration 5 of 5: 47.407000 ms
+I 00:00:00.854152 executorch:executor_runner.cpp:858] Model executed successfully 5 time(s) in 673.162291 ms.
+I 00:00:00.854167 executorch:executor_runner.cpp:342] [after execute loop] rss 218.8 MiB, phys_footprint 281.0 MiB, lifetime_max_phys_footprint 281.0 MiB
+I 00:00:00.854169 executorch:executor_runner.cpp:863] 1 outputs: 
+OutputX 0: tensor(sizes=[1, 1, 51865], [
+  -7.5625, -9.5625, -11.375, -11.5625, -10.375, -12.5, -9.5, -11.25, -12.5625, -11.375, 
+  -13.1875, -11.4375, -12.4375, -10., -13.9375, -10.5, -11.5, -12.6875, -11.4375, -10.875, 
+  -11.5625, -11.125, -12.4375, -10.875, -10.9375, -9.875, -11.1875, -11.6875, -13.9375, -11.625, 
+  -8.1875, -12.25, -10., -10.4375, -12.25, -10.6875, -11.25, -8.125, -12.25, -9.75, 
+  -10.8125, -10.6875, -10.5625, -11.4375, -10.25, -11.75, -10.4375, -10.0625, -10.9375, -11.25, 
+  -7.96875, -11.6875, -9.6875, -10.3125, -9.6875, -11.4375, -11., -11.4375, -11.0625, -9.5, 
+  -13.5625, -10.25, -14.3125, -10.8125, -11.5625, -11.6875, -13.3125, -13.4375, -12.875, -12.75, 
+  -14.3125, -12.4375, -10.5, -13.4375, -11.625, -13.375, -12.5, -15.125, -14.1875, -13.75, 
+  -11.875, -12.5, -8.5625, -12.875, -10.875, -12.3125, -12.375, -11.6875, -12.0625, -15.1875, 
+  -9.75, -13.4375, -12.0625, -10.75, -12.875, -10.5, -12.75, -13.6875, -10.3125, -11., 
+  ...,
+  -11.6875, -11.625, -11.6875, -10.6875, -11., -10.1875, -10.5, -10.3125, -11.0625, -10.25, 
+  -11.3125, -10.9375, -10.9375, -10.3125, -11., -12.8125, -11.5625, -11.25, -12.8125, -12., 
+  -11.8125, -11.1875, -11.6875, -11.875, -11.875, -10.9375, -12.1875, -12.25, -11.9375, -11.8125, 
+  -11.8125, -12.875, -13.125, -12.8125, -13.125, -13.6875, -13.25, -11.8125, -11.8125, -11.6875, 
+  -11.1875, -10.125, -11.875, -11.5, -11.0625, -10.625, -12., -11.5, -11.9375, -10.5625, 
+  -10.875, -10.25, -11.125, -10.875, -10.6875, -10.75, -10.9375, -10.1875, -10.75, -11.1875, 
+  -11.1875, -10.5, -11.1875, -10.4375, -10.1875, -10.75, -9.9375, -11.3125, -11.625, -11.1875, 
+  -11.1875, -11.6875, -11.1875, -11.4375, -12.6875, -12.8125, -12.0625, -11.625, -11.3125, -12.1875, 
+  -12.125, -11.5, -11.6875, -12.5, -12.375, -11.875, -12.8125, -12.4375, -11.5, -11.4375, 
+  -12.6875, -12.1875, -12.75, -12., -11.75, -11.6875, -12.3125, -10.75, -11.8125, -11.875, 
+])
+        0.87 real         0.05 user         0.12 sys
+           229457920  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               14333  page reclaims
+                  15  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   3  voluntary context switches
+                 653  involuntary context switches
+           294635328  peak memory footprint

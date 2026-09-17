@@ -1,0 +1,11 @@
+W0917 11:18:49.790000 86502 site-packages/torch/distributed/elastic/multiprocessing/redirects.py:35] NOTE: Redirects are currently not supported in MacOs.
+W0917 11:18:49.814000 86502 site-packages/torch/utils/_pytree.py:630] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+[MLXBackend.cpp:259] MLX Metal cache limit set to 256MB
+[MLXExecutor.h:848] MLX constants: 83 loaded, 0 copied by MLX (0 bytes resident twice)
+[start] rss 328.0 MiB, phys_footprint 270.3 MiB, lifetime_max 271.0 MiB
+[after load_program] rss 332.2 MiB, phys_footprint 274.3 MiB, lifetime_max 274.3 MiB
+[after load_method] rss 354.8 MiB, phys_footprint 275.4 MiB, lifetime_max 275.6 MiB
+  input 0: sizes=(480000,) scalar_type=6
+[after execute 1] rss 365.4 MiB, phys_footprint 539.4 MiB, lifetime_max 1076.7 MiB outputs: [(1, 1500, 384)]
+[after execute 2] rss 368.0 MiB, phys_footprint 540.3 MiB, lifetime_max 1079.7 MiB outputs: [(1, 1500, 384)]
+[after execute 3] rss 370.4 MiB, phys_footprint 540.9 MiB, lifetime_max 1079.7 MiB outputs: [(1, 1500, 384)]

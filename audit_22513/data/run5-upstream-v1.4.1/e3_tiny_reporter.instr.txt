@@ -1,0 +1,2444 @@
+
+======================================================================
+MLX DELEGATE 0 (plan index 0)
+======================================================================
+Version: 1
+Constant tensors: 100
+Input tensors: 3
+Output tensors: 1
+Mutable buffer tensors: 8
+Temp tensors: 235
+Values: 13
+Instruction chains: 1
+Main chain idx: 0
+
+Chain 0 (main) (265 instructions):
+  [0] AsTypeNode
+      x: tid 102
+      out: tid 116
+      scalar_type: 15
+  [1] TakeNode
+      x: tid 101
+      out: tid 118
+      index: {'literal': 0}
+      axis: 0
+  [2] ItemIntNode
+      x: tid 118
+      out: vid 0
+  [3] TakeNode
+      x: tid 1
+      out: tid 119
+      index: tid 100
+      axis: 0
+  [4] TakeNode
+      x: tid 0
+      out: tid 121
+      index: tid 101
+      axis: 0
+  [5] AddNode
+      a: tid 119
+      b: tid 121
+      out: tid 132
+  [6] AsTypeNode
+      x: tid 132
+      out: tid 122
+      scalar_type: 6
+  [7] LayerNormNode
+      x: tid 122
+      out: tid 117
+      weight: tid 9
+      bias: tid 10
+      eps: 9.999999747378752e-06
+  [8] IdCopyNode
+      x: tid 117
+      out: tid 126
+  [9] AsTypeNode
+      x: tid 126
+      out: tid 138
+      scalar_type: 15
+  [10] TransposeNode
+      x: tid 2
+      out: tid 120
+      perm: [1, 0]
+  [11] AddmmNode
+      mat1: tid 138
+      mat2: tid 120
+      out: tid 159
+      bias: tid 3
+      alpha: 1.0
+      beta: 1.0
+  [12] ReshapeNode
+      x: tid 159
+      out: tid 127
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [13] TransposeNode
+      x: tid 127
+      out: tid 155
+      perm: [0, 2, 1, 3]
+  [14] TransposeNode
+      x: tid 4
+      out: tid 166
+      perm: [1, 0]
+  [15] AddmmNode
+      mat1: tid 138
+      mat2: tid 166
+      out: tid 123
+      alpha: 1.0
+      beta: 1.0
+  [16] TransposeNode
+      x: tid 5
+      out: tid 181
+      perm: [1, 0]
+  [17] AddmmNode
+      mat1: tid 138
+      mat2: tid 181
+      out: tid 177
+      bias: tid 6
+      alpha: 1.0
+      beta: 1.0
+  [18] ReshapeNode
+      x: tid 123
+      out: tid 140
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [19] TransposeNode
+      x: tid 140
+      out: tid 124
+      perm: [0, 2, 1, 3]
+  [20] ReshapeNode
+      x: tid 177
+      out: tid 139
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [21] TransposeNode
+      x: tid 139
+      out: tid 179
+      perm: [0, 2, 1, 3]
+  [22] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 1
+  [23] SliceUpdateNode
+      dst: tid 104
+      update: tid 124
+      out: tid 104
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 1
+      step: 1
+  [24] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 2
+  [25] SliceUpdateNode
+      dst: tid 105
+      update: tid 179
+      out: tid 105
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 2
+      step: 1
+  [26] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 3
+  [27] SliceNode
+      x: tid 104
+      out: tid 125
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 3
+      step: 1
+  [28] SliceNode
+      x: tid 105
+      out: tid 141
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 3
+      step: 1
+  [29] SdpaNode
+      q: tid 155
+      k: tid 125
+      v: tid 141
+      out: tid 169
+      scale: 0.125
+      causal: True
+  [30] TransposeNode
+      x: tid 169
+      out: tid 163
+      perm: [0, 2, 1, 3]
+  [31] ReshapeNode
+      x: tid 163
+      out: tid 168
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [32] TransposeNode
+      x: tid 7
+      out: tid 182
+      perm: [1, 0]
+  [33] AddmmNode
+      mat1: tid 168
+      mat2: tid 182
+      out: tid 144
+      bias: tid 8
+      alpha: 1.0
+      beta: 1.0
+  [34] AddNode
+      a: tid 132
+      b: tid 144
+      out: tid 180
+  [35] AsTypeNode
+      x: tid 180
+      out: tid 136
+      scalar_type: 6
+  [36] LayerNormNode
+      x: tid 136
+      out: tid 152
+      weight: tid 18
+      bias: tid 19
+      eps: 9.999999747378752e-06
+  [37] IdCopyNode
+      x: tid 152
+      out: tid 130
+  [38] AsTypeNode
+      x: tid 130
+      out: tid 151
+      scalar_type: 15
+  [39] TransposeNode
+      x: tid 11
+      out: tid 183
+      perm: [1, 0]
+  [40] AddmmNode
+      mat1: tid 151
+      mat2: tid 183
+      out: tid 134
+      bias: tid 12
+      alpha: 1.0
+      beta: 1.0
+  [41] ReshapeNode
+      x: tid 134
+      out: tid 184
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [42] TransposeNode
+      x: tid 184
+      out: tid 143
+      perm: [0, 2, 1, 3]
+  [43] TransposeNode
+      x: tid 13
+      out: tid 185
+      perm: [1, 0]
+  [44] AddmmNode
+      mat1: tid 116
+      mat2: tid 185
+      out: tid 128
+      alpha: 1.0
+      beta: 1.0
+  [45] TransposeNode
+      x: tid 14
+      out: tid 191
+      perm: [1, 0]
+  [46] AddmmNode
+      mat1: tid 116
+      mat2: tid 191
+      out: tid 189
+      bias: tid 15
+      alpha: 1.0
+      beta: 1.0
+  [47] ReshapeNode
+      x: tid 128
+      out: tid 194
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [48] TransposeNode
+      x: tid 194
+      out: tid 135
+      perm: [0, 2, 1, 3]
+  [49] ReshapeNode
+      x: tid 189
+      out: tid 193
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [50] TransposeNode
+      x: tid 193
+      out: tid 190
+      perm: [0, 2, 1, 3]
+  [51] SdpaNode
+      q: tid 143
+      k: tid 135
+      v: tid 190
+      out: tid 192
+      scale: 0.125
+      causal: False
+  [52] TransposeNode
+      x: tid 192
+      out: tid 137
+      perm: [0, 2, 1, 3]
+  [53] ReshapeNode
+      x: tid 137
+      out: tid 186
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [54] TransposeNode
+      x: tid 16
+      out: tid 195
+      perm: [1, 0]
+  [55] AddmmNode
+      mat1: tid 186
+      mat2: tid 195
+      out: tid 145
+      bias: tid 17
+      alpha: 1.0
+      beta: 1.0
+  [56] AddNode
+      a: tid 180
+      b: tid 145
+      out: tid 131
+  [57] AsTypeNode
+      x: tid 131
+      out: tid 147
+      scalar_type: 6
+  [58] LayerNormNode
+      x: tid 147
+      out: tid 178
+      weight: tid 24
+      bias: tid 25
+      eps: 9.999999747378752e-06
+  [59] IdCopyNode
+      x: tid 178
+      out: tid 157
+  [60] AsTypeNode
+      x: tid 157
+      out: tid 176
+      scalar_type: 15
+  [61] TransposeNode
+      x: tid 20
+      out: tid 196
+      perm: [1, 0]
+  [62] AddmmNode
+      mat1: tid 176
+      mat2: tid 196
+      out: tid 188
+      bias: tid 21
+      alpha: 1.0
+      beta: 1.0
+  [63] GeluNode
+      x: tid 188
+      out: tid 165
+      approximate: none
+  [64] TransposeNode
+      x: tid 22
+      out: tid 187
+      perm: [1, 0]
+  [65] AddmmNode
+      mat1: tid 165
+      mat2: tid 187
+      out: tid 167
+      bias: tid 23
+      alpha: 1.0
+      beta: 1.0
+  [66] AddNode
+      a: tid 131
+      b: tid 167
+      out: tid 146
+  [67] AsTypeNode
+      x: tid 146
+      out: tid 171
+      scalar_type: 6
+  [68] LayerNormNode
+      x: tid 171
+      out: tid 129
+      weight: tid 33
+      bias: tid 34
+      eps: 9.999999747378752e-06
+  [69] IdCopyNode
+      x: tid 129
+      out: tid 175
+  [70] AsTypeNode
+      x: tid 175
+      out: tid 198
+      scalar_type: 15
+  [71] TransposeNode
+      x: tid 26
+      out: tid 133
+      perm: [1, 0]
+  [72] AddmmNode
+      mat1: tid 198
+      mat2: tid 133
+      out: tid 203
+      bias: tid 27
+      alpha: 1.0
+      beta: 1.0
+  [73] ReshapeNode
+      x: tid 203
+      out: tid 170
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [74] TransposeNode
+      x: tid 170
+      out: tid 201
+      perm: [0, 2, 1, 3]
+  [75] TransposeNode
+      x: tid 28
+      out: tid 207
+      perm: [1, 0]
+  [76] AddmmNode
+      mat1: tid 198
+      mat2: tid 207
+      out: tid 173
+      alpha: 1.0
+      beta: 1.0
+  [77] TransposeNode
+      x: tid 29
+      out: tid 214
+      perm: [1, 0]
+  [78] AddmmNode
+      mat1: tid 198
+      mat2: tid 214
+      out: tid 213
+      bias: tid 30
+      alpha: 1.0
+      beta: 1.0
+  [79] ReshapeNode
+      x: tid 173
+      out: tid 197
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [80] TransposeNode
+      x: tid 197
+      out: tid 174
+      perm: [0, 2, 1, 3]
+  [81] ReshapeNode
+      x: tid 213
+      out: tid 199
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [82] TransposeNode
+      x: tid 199
+      out: tid 210
+      perm: [0, 2, 1, 3]
+  [83] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 4
+  [84] SliceUpdateNode
+      dst: tid 106
+      update: tid 174
+      out: tid 106
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 4
+      step: 1
+  [85] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 5
+  [86] SliceUpdateNode
+      dst: tid 107
+      update: tid 210
+      out: tid 107
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 5
+      step: 1
+  [87] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 6
+  [88] SliceNode
+      x: tid 106
+      out: tid 172
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 6
+      step: 1
+  [89] SliceNode
+      x: tid 107
+      out: tid 200
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 6
+      step: 1
+  [90] SdpaNode
+      q: tid 201
+      k: tid 172
+      v: tid 200
+      out: tid 211
+      scale: 0.125
+      causal: True
+  [91] TransposeNode
+      x: tid 211
+      out: tid 206
+      perm: [0, 2, 1, 3]
+  [92] ReshapeNode
+      x: tid 206
+      out: tid 209
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [93] TransposeNode
+      x: tid 31
+      out: tid 215
+      perm: [1, 0]
+  [94] AddmmNode
+      mat1: tid 209
+      mat2: tid 215
+      out: tid 205
+      bias: tid 32
+      alpha: 1.0
+      beta: 1.0
+  [95] AddNode
+      a: tid 146
+      b: tid 205
+      out: tid 212
+  [96] AsTypeNode
+      x: tid 212
+      out: tid 158
+      scalar_type: 6
+  [97] LayerNormNode
+      x: tid 158
+      out: tid 202
+      weight: tid 42
+      bias: tid 43
+      eps: 9.999999747378752e-06
+  [98] IdCopyNode
+      x: tid 202
+      out: tid 149
+  [99] AsTypeNode
+      x: tid 149
+      out: tid 216
+      scalar_type: 15
+  [100] TransposeNode
+      x: tid 35
+      out: tid 204
+      perm: [1, 0]
+  [101] AddmmNode
+      mat1: tid 216
+      mat2: tid 204
+      out: tid 221
+      bias: tid 36
+      alpha: 1.0
+      beta: 1.0
+  [102] ReshapeNode
+      x: tid 221
+      out: tid 142
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [103] TransposeNode
+      x: tid 142
+      out: tid 218
+      perm: [0, 2, 1, 3]
+  [104] TransposeNode
+      x: tid 37
+      out: tid 217
+      perm: [1, 0]
+  [105] AddmmNode
+      mat1: tid 116
+      mat2: tid 217
+      out: tid 148
+      alpha: 1.0
+      beta: 1.0
+  [106] TransposeNode
+      x: tid 38
+      out: tid 238
+      perm: [1, 0]
+  [107] AddmmNode
+      mat1: tid 116
+      mat2: tid 238
+      out: tid 231
+      bias: tid 39
+      alpha: 1.0
+      beta: 1.0
+  [108] ReshapeNode
+      x: tid 148
+      out: tid 240
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [109] TransposeNode
+      x: tid 240
+      out: tid 164
+      perm: [0, 2, 1, 3]
+  [110] ReshapeNode
+      x: tid 231
+      out: tid 239
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [111] TransposeNode
+      x: tid 239
+      out: tid 233
+      perm: [0, 2, 1, 3]
+  [112] SdpaNode
+      q: tid 218
+      k: tid 164
+      v: tid 233
+      out: tid 241
+      scale: 0.125
+      causal: False
+  [113] TransposeNode
+      x: tid 241
+      out: tid 224
+      perm: [0, 2, 1, 3]
+  [114] ReshapeNode
+      x: tid 224
+      out: tid 161
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [115] TransposeNode
+      x: tid 40
+      out: tid 242
+      perm: [1, 0]
+  [116] AddmmNode
+      mat1: tid 161
+      mat2: tid 242
+      out: tid 236
+      bias: tid 41
+      alpha: 1.0
+      beta: 1.0
+  [117] AddNode
+      a: tid 212
+      b: tid 236
+      out: tid 226
+  [118] AsTypeNode
+      x: tid 226
+      out: tid 227
+      scalar_type: 6
+  [119] LayerNormNode
+      x: tid 227
+      out: tid 160
+      weight: tid 48
+      bias: tid 49
+      eps: 9.999999747378752e-06
+  [120] IdCopyNode
+      x: tid 160
+      out: tid 232
+  [121] AsTypeNode
+      x: tid 232
+      out: tid 154
+      scalar_type: 15
+  [122] TransposeNode
+      x: tid 44
+      out: tid 208
+      perm: [1, 0]
+  [123] AddmmNode
+      mat1: tid 154
+      mat2: tid 208
+      out: tid 244
+      bias: tid 45
+      alpha: 1.0
+      beta: 1.0
+  [124] GeluNode
+      x: tid 244
+      out: tid 234
+      approximate: none
+  [125] TransposeNode
+      x: tid 46
+      out: tid 243
+      perm: [1, 0]
+  [126] AddmmNode
+      mat1: tid 234
+      mat2: tid 243
+      out: tid 162
+      bias: tid 47
+      alpha: 1.0
+      beta: 1.0
+  [127] AddNode
+      a: tid 226
+      b: tid 162
+      out: tid 235
+  [128] AsTypeNode
+      x: tid 235
+      out: tid 150
+      scalar_type: 6
+  [129] LayerNormNode
+      x: tid 150
+      out: tid 223
+      weight: tid 57
+      bias: tid 58
+      eps: 9.999999747378752e-06
+  [130] IdCopyNode
+      x: tid 223
+      out: tid 156
+  [131] AsTypeNode
+      x: tid 156
+      out: tid 249
+      scalar_type: 15
+  [132] TransposeNode
+      x: tid 50
+      out: tid 153
+      perm: [1, 0]
+  [133] AddmmNode
+      mat1: tid 249
+      mat2: tid 153
+      out: tid 259
+      bias: tid 51
+      alpha: 1.0
+      beta: 1.0
+  [134] ReshapeNode
+      x: tid 259
+      out: tid 219
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [135] TransposeNode
+      x: tid 219
+      out: tid 252
+      perm: [0, 2, 1, 3]
+  [136] TransposeNode
+      x: tid 52
+      out: tid 261
+      perm: [1, 0]
+  [137] AddmmNode
+      mat1: tid 249
+      mat2: tid 261
+      out: tid 225
+      alpha: 1.0
+      beta: 1.0
+  [138] TransposeNode
+      x: tid 53
+      out: tid 265
+      perm: [1, 0]
+  [139] AddmmNode
+      mat1: tid 249
+      mat2: tid 265
+      out: tid 264
+      bias: tid 54
+      alpha: 1.0
+      beta: 1.0
+  [140] ReshapeNode
+      x: tid 225
+      out: tid 250
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [141] TransposeNode
+      x: tid 250
+      out: tid 220
+      perm: [0, 2, 1, 3]
+  [142] ReshapeNode
+      x: tid 264
+      out: tid 245
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [143] TransposeNode
+      x: tid 245
+      out: tid 263
+      perm: [0, 2, 1, 3]
+  [144] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 7
+  [145] SliceUpdateNode
+      dst: tid 108
+      update: tid 220
+      out: tid 108
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 7
+      step: 1
+  [146] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 8
+  [147] SliceUpdateNode
+      dst: tid 109
+      update: tid 263
+      out: tid 109
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 8
+      step: 1
+  [148] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 9
+  [149] SliceNode
+      x: tid 108
+      out: tid 222
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 9
+      step: 1
+  [150] SliceNode
+      x: tid 109
+      out: tid 262
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 9
+      step: 1
+  [151] SdpaNode
+      q: tid 252
+      k: tid 222
+      v: tid 262
+      out: tid 251
+      scale: 0.125
+      causal: True
+  [152] TransposeNode
+      x: tid 251
+      out: tid 254
+      perm: [0, 2, 1, 3]
+  [153] ReshapeNode
+      x: tid 254
+      out: tid 247
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [154] TransposeNode
+      x: tid 55
+      out: tid 266
+      perm: [1, 0]
+  [155] AddmmNode
+      mat1: tid 247
+      mat2: tid 266
+      out: tid 253
+      bias: tid 56
+      alpha: 1.0
+      beta: 1.0
+  [156] AddNode
+      a: tid 235
+      b: tid 253
+      out: tid 246
+  [157] AsTypeNode
+      x: tid 246
+      out: tid 228
+      scalar_type: 6
+  [158] LayerNormNode
+      x: tid 228
+      out: tid 260
+      weight: tid 66
+      bias: tid 67
+      eps: 9.999999747378752e-06
+  [159] IdCopyNode
+      x: tid 260
+      out: tid 229
+  [160] AsTypeNode
+      x: tid 229
+      out: tid 258
+      scalar_type: 15
+  [161] TransposeNode
+      x: tid 59
+      out: tid 277
+      perm: [1, 0]
+  [162] AddmmNode
+      mat1: tid 258
+      mat2: tid 277
+      out: tid 271
+      bias: tid 60
+      alpha: 1.0
+      beta: 1.0
+  [163] ReshapeNode
+      x: tid 271
+      out: tid 230
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [164] TransposeNode
+      x: tid 230
+      out: tid 273
+      perm: [0, 2, 1, 3]
+  [165] TransposeNode
+      x: tid 61
+      out: tid 237
+      perm: [1, 0]
+  [166] AddmmNode
+      mat1: tid 116
+      mat2: tid 237
+      out: tid 257
+      alpha: 1.0
+      beta: 1.0
+  [167] TransposeNode
+      x: tid 62
+      out: tid 289
+      perm: [1, 0]
+  [168] AddmmNode
+      mat1: tid 116
+      mat2: tid 289
+      out: tid 288
+      bias: tid 63
+      alpha: 1.0
+      beta: 1.0
+  [169] ReshapeNode
+      x: tid 257
+      out: tid 293
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [170] TransposeNode
+      x: tid 293
+      out: tid 255
+      perm: [0, 2, 1, 3]
+  [171] ReshapeNode
+      x: tid 288
+      out: tid 292
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [172] TransposeNode
+      x: tid 292
+      out: tid 287
+      perm: [0, 2, 1, 3]
+  [173] SdpaNode
+      q: tid 273
+      k: tid 255
+      v: tid 287
+      out: tid 296
+      scale: 0.125
+      causal: False
+  [174] TransposeNode
+      x: tid 296
+      out: tid 274
+      perm: [0, 2, 1, 3]
+  [175] ReshapeNode
+      x: tid 274
+      out: tid 280
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [176] TransposeNode
+      x: tid 64
+      out: tid 256
+      perm: [1, 0]
+  [177] AddmmNode
+      mat1: tid 280
+      mat2: tid 256
+      out: tid 295
+      bias: tid 65
+      alpha: 1.0
+      beta: 1.0
+  [178] AddNode
+      a: tid 246
+      b: tid 295
+      out: tid 272
+  [179] AsTypeNode
+      x: tid 272
+      out: tid 282
+      scalar_type: 6
+  [180] LayerNormNode
+      x: tid 282
+      out: tid 291
+      weight: tid 72
+      bias: tid 73
+      eps: 9.999999747378752e-06
+  [181] IdCopyNode
+      x: tid 291
+      out: tid 281
+  [182] AsTypeNode
+      x: tid 281
+      out: tid 294
+      scalar_type: 15
+  [183] TransposeNode
+      x: tid 68
+      out: tid 248
+      perm: [1, 0]
+  [184] AddmmNode
+      mat1: tid 294
+      mat2: tid 248
+      out: tid 301
+      bias: tid 69
+      alpha: 1.0
+      beta: 1.0
+  [185] GeluNode
+      x: tid 301
+      out: tid 279
+      approximate: none
+  [186] TransposeNode
+      x: tid 70
+      out: tid 290
+      perm: [1, 0]
+  [187] AddmmNode
+      mat1: tid 279
+      mat2: tid 290
+      out: tid 298
+      bias: tid 71
+      alpha: 1.0
+      beta: 1.0
+  [188] AddNode
+      a: tid 272
+      b: tid 298
+      out: tid 283
+  [189] AsTypeNode
+      x: tid 283
+      out: tid 275
+      scalar_type: 6
+  [190] LayerNormNode
+      x: tid 275
+      out: tid 299
+      weight: tid 81
+      bias: tid 82
+      eps: 9.999999747378752e-06
+  [191] IdCopyNode
+      x: tid 299
+      out: tid 270
+  [192] AsTypeNode
+      x: tid 270
+      out: tid 297
+      scalar_type: 15
+  [193] TransposeNode
+      x: tid 74
+      out: tid 315
+      perm: [1, 0]
+  [194] AddmmNode
+      mat1: tid 297
+      mat2: tid 315
+      out: tid 307
+      bias: tid 75
+      alpha: 1.0
+      beta: 1.0
+  [195] ReshapeNode
+      x: tid 307
+      out: tid 276
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [196] TransposeNode
+      x: tid 276
+      out: tid 313
+      perm: [0, 2, 1, 3]
+  [197] TransposeNode
+      x: tid 76
+      out: tid 316
+      perm: [1, 0]
+  [198] AddmmNode
+      mat1: tid 297
+      mat2: tid 316
+      out: tid 267
+      alpha: 1.0
+      beta: 1.0
+  [199] TransposeNode
+      x: tid 77
+      out: tid 327
+      perm: [1, 0]
+  [200] AddmmNode
+      mat1: tid 297
+      mat2: tid 327
+      out: tid 321
+      bias: tid 78
+      alpha: 1.0
+      beta: 1.0
+  [201] ReshapeNode
+      x: tid 267
+      out: tid 300
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [202] TransposeNode
+      x: tid 300
+      out: tid 268
+      perm: [0, 2, 1, 3]
+  [203] ReshapeNode
+      x: tid 321
+      out: tid 302
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [204] TransposeNode
+      x: tid 302
+      out: tid 320
+      perm: [0, 2, 1, 3]
+  [205] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 10
+  [206] SliceUpdateNode
+      dst: tid 110
+      update: tid 268
+      out: tid 110
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 10
+      step: 1
+  [207] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 11
+  [208] SliceUpdateNode
+      dst: tid 111
+      update: tid 320
+      out: tid 111
+      axis: {'literal': 2}
+      start: vid 0
+      stop: vid 11
+      step: 1
+  [209] AddIntNode
+      a: vid 0
+      b: {'literal': 1}
+      out: vid 12
+  [210] SliceNode
+      x: tid 110
+      out: tid 269
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 12
+      step: 1
+  [211] SliceNode
+      x: tid 111
+      out: tid 303
+      axis: {'literal': 2}
+      start: {'literal': 0}
+      stop: vid 12
+      step: 1
+  [212] SdpaNode
+      q: tid 313
+      k: tid 269
+      v: tid 303
+      out: tid 322
+      scale: 0.125
+      causal: True
+  [213] TransposeNode
+      x: tid 322
+      out: tid 310
+      perm: [0, 2, 1, 3]
+  [214] ReshapeNode
+      x: tid 310
+      out: tid 325
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [215] TransposeNode
+      x: tid 79
+      out: tid 328
+      perm: [1, 0]
+  [216] AddmmNode
+      mat1: tid 325
+      mat2: tid 328
+      out: tid 311
+      bias: tid 80
+      alpha: 1.0
+      beta: 1.0
+  [217] AddNode
+      a: tid 283
+      b: tid 311
+      out: tid 324
+  [218] AsTypeNode
+      x: tid 324
+      out: tid 285
+      scalar_type: 6
+  [219] LayerNormNode
+      x: tid 285
+      out: tid 304
+      weight: tid 90
+      bias: tid 91
+      eps: 9.999999747378752e-06
+  [220] IdCopyNode
+      x: tid 304
+      out: tid 278
+  [221] AsTypeNode
+      x: tid 278
+      out: tid 314
+      scalar_type: 15
+  [222] TransposeNode
+      x: tid 83
+      out: tid 335
+      perm: [1, 0]
+  [223] AddmmNode
+      mat1: tid 314
+      mat2: tid 335
+      out: tid 333
+      bias: tid 84
+      alpha: 1.0
+      beta: 1.0
+  [224] ReshapeNode
+      x: tid 333
+      out: tid 284
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 6}, {'literal': 64}]
+  [225] TransposeNode
+      x: tid 284
+      out: tid 306
+      perm: [0, 2, 1, 3]
+  [226] TransposeNode
+      x: tid 85
+      out: tid 286
+      perm: [1, 0]
+  [227] AddmmNode
+      mat1: tid 116
+      mat2: tid 286
+      out: tid 330
+      alpha: 1.0
+      beta: 1.0
+  [228] TransposeNode
+      x: tid 86
+      out: tid 344
+      perm: [1, 0]
+  [229] AddmmNode
+      mat1: tid 116
+      mat2: tid 344
+      out: tid 341
+      bias: tid 87
+      alpha: 1.0
+      beta: 1.0
+  [230] ReshapeNode
+      x: tid 330
+      out: tid 112
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [231] TransposeNode
+      x: tid 112
+      out: tid 329
+      perm: [0, 2, 1, 3]
+  [232] ReshapeNode
+      x: tid 341
+      out: tid 115
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': 64}]
+  [233] TransposeNode
+      x: tid 115
+      out: tid 338
+      perm: [0, 2, 1, 3]
+  [234] SdpaNode
+      q: tid 306
+      k: tid 329
+      v: tid 338
+      out: tid 114
+      scale: 0.125
+      causal: False
+  [235] TransposeNode
+      x: tid 114
+      out: tid 305
+      perm: [0, 2, 1, 3]
+  [236] ReshapeNode
+      x: tid 305
+      out: tid 331
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': 384}]
+  [237] TransposeNode
+      x: tid 88
+      out: tid 113
+      perm: [1, 0]
+  [238] AddmmNode
+      mat1: tid 331
+      mat2: tid 113
+      out: tid 343
+      bias: tid 89
+      alpha: 1.0
+      beta: 1.0
+  [239] AddNode
+      a: tid 324
+      b: tid 343
+      out: tid 312
+  [240] AsTypeNode
+      x: tid 312
+      out: tid 318
+      scalar_type: 6
+  [241] LayerNormNode
+      x: tid 318
+      out: tid 332
+      weight: tid 96
+      bias: tid 97
+      eps: 9.999999747378752e-06
+  [242] IdCopyNode
+      x: tid 332
+      out: tid 323
+  [243] AsTypeNode
+      x: tid 323
+      out: tid 340
+      scalar_type: 15
+  [244] TransposeNode
+      x: tid 92
+      out: tid 334
+      perm: [1, 0]
+  [245] AddmmNode
+      mat1: tid 340
+      mat2: tid 334
+      out: tid 346
+      bias: tid 93
+      alpha: 1.0
+      beta: 1.0
+  [246] GeluNode
+      x: tid 346
+      out: tid 317
+      approximate: none
+  [247] TransposeNode
+      x: tid 94
+      out: tid 345
+      perm: [1, 0]
+  [248] AddmmNode
+      mat1: tid 317
+      mat2: tid 345
+      out: tid 342
+      bias: tid 95
+      alpha: 1.0
+      beta: 1.0
+  [249] AddNode
+      a: tid 312
+      b: tid 342
+      out: tid 319
+  [250] AsTypeNode
+      x: tid 319
+      out: tid 337
+      scalar_type: 6
+  [251] LayerNormNode
+      x: tid 337
+      out: tid 309
+      weight: tid 98
+      bias: tid 99
+      eps: 9.999999747378752e-06
+  [252] IdCopyNode
+      x: tid 309
+      out: tid 336
+  [253] AsTypeNode
+      x: tid 336
+      out: tid 308
+      scalar_type: 15
+  [254] TransposeNode
+      x: tid 1
+      out: tid 326
+      perm: [1, 0]
+  [255] AddmmNode
+      mat1: tid 308
+      mat2: tid 326
+      out: tid 339
+      alpha: 1.0
+      beta: 1.0
+  [256] AsTypeNode
+      x: tid 339
+      out: tid 103
+      scalar_type: 6
+  [257] IdCopyNode
+      x: tid 104
+      out: tid 104
+  [258] IdCopyNode
+      x: tid 105
+      out: tid 105
+  [259] IdCopyNode
+      x: tid 106
+      out: tid 106
+  [260] IdCopyNode
+      x: tid 107
+      out: tid 107
+  [261] IdCopyNode
+      x: tid 108
+      out: tid 108
+  [262] IdCopyNode
+      x: tid 109
+      out: tid 109
+  [263] IdCopyNode
+      x: tid 110
+      out: tid 110
+  [264] IdCopyNode
+      x: tid 111
+      out: tid 111
+
+Named Slots:
+  [0] 5099/decoder.positional_embedding (tid)
+  [1] 5099/decoder.token_embedding.weight (tid)
+  [2] 5099/decoder.blocks.0.attn.query.weight (tid)
+  [3] 5099/decoder.blocks.0.attn.query.bias (tid)
+  [4] 5099/decoder.blocks.0.attn.key.weight (tid)
+  [5] 5099/decoder.blocks.0.attn.value.weight (tid)
+  [6] 5099/decoder.blocks.0.attn.value.bias (tid)
+  [7] 5099/decoder.blocks.0.attn.out.weight (tid)
+  [8] 5099/decoder.blocks.0.attn.out.bias (tid)
+  [9] 5099/decoder.blocks.0.attn_ln.weight (tid)
+  [10] 5099/decoder.blocks.0.attn_ln.bias (tid)
+  [11] 5099/decoder.blocks.0.cross_attn.query.weight (tid)
+  [12] 5099/decoder.blocks.0.cross_attn.query.bias (tid)
+  [13] 5099/decoder.blocks.0.cross_attn.key.weight (tid)
+  [14] 5099/decoder.blocks.0.cross_attn.value.weight (tid)
+  [15] 5099/decoder.blocks.0.cross_attn.value.bias (tid)
+  [16] 5099/decoder.blocks.0.cross_attn.out.weight (tid)
+  [17] 5099/decoder.blocks.0.cross_attn.out.bias (tid)
+  [18] 5099/decoder.blocks.0.cross_attn_ln.weight (tid)
+  [19] 5099/decoder.blocks.0.cross_attn_ln.bias (tid)
+  [20] 5099/decoder.blocks.0.mlp.0.weight (tid)
+  [21] 5099/decoder.blocks.0.mlp.0.bias (tid)
+  [22] 5099/decoder.blocks.0.mlp.2.weight (tid)
+  [23] 5099/decoder.blocks.0.mlp.2.bias (tid)
+  [24] 5099/decoder.blocks.0.mlp_ln.weight (tid)
+  [25] 5099/decoder.blocks.0.mlp_ln.bias (tid)
+  [26] 5099/decoder.blocks.1.attn.query.weight (tid)
+  [27] 5099/decoder.blocks.1.attn.query.bias (tid)
+  [28] 5099/decoder.blocks.1.attn.key.weight (tid)
+  [29] 5099/decoder.blocks.1.attn.value.weight (tid)
+  [30] 5099/decoder.blocks.1.attn.value.bias (tid)
+  [31] 5099/decoder.blocks.1.attn.out.weight (tid)
+  [32] 5099/decoder.blocks.1.attn.out.bias (tid)
+  [33] 5099/decoder.blocks.1.attn_ln.weight (tid)
+  [34] 5099/decoder.blocks.1.attn_ln.bias (tid)
+  [35] 5099/decoder.blocks.1.cross_attn.query.weight (tid)
+  [36] 5099/decoder.blocks.1.cross_attn.query.bias (tid)
+  [37] 5099/decoder.blocks.1.cross_attn.key.weight (tid)
+  [38] 5099/decoder.blocks.1.cross_attn.value.weight (tid)
+  [39] 5099/decoder.blocks.1.cross_attn.value.bias (tid)
+  [40] 5099/decoder.blocks.1.cross_attn.out.weight (tid)
+  [41] 5099/decoder.blocks.1.cross_attn.out.bias (tid)
+  [42] 5099/decoder.blocks.1.cross_attn_ln.weight (tid)
+  [43] 5099/decoder.blocks.1.cross_attn_ln.bias (tid)
+  [44] 5099/decoder.blocks.1.mlp.0.weight (tid)
+  [45] 5099/decoder.blocks.1.mlp.0.bias (tid)
+  [46] 5099/decoder.blocks.1.mlp.2.weight (tid)
+  [47] 5099/decoder.blocks.1.mlp.2.bias (tid)
+  [48] 5099/decoder.blocks.1.mlp_ln.weight (tid)
+  [49] 5099/decoder.blocks.1.mlp_ln.bias (tid)
+  [50] 5099/decoder.blocks.2.attn.query.weight (tid)
+  [51] 5099/decoder.blocks.2.attn.query.bias (tid)
+  [52] 5099/decoder.blocks.2.attn.key.weight (tid)
+  [53] 5099/decoder.blocks.2.attn.value.weight (tid)
+  [54] 5099/decoder.blocks.2.attn.value.bias (tid)
+  [55] 5099/decoder.blocks.2.attn.out.weight (tid)
+  [56] 5099/decoder.blocks.2.attn.out.bias (tid)
+  [57] 5099/decoder.blocks.2.attn_ln.weight (tid)
+  [58] 5099/decoder.blocks.2.attn_ln.bias (tid)
+  [59] 5099/decoder.blocks.2.cross_attn.query.weight (tid)
+  [60] 5099/decoder.blocks.2.cross_attn.query.bias (tid)
+  [61] 5099/decoder.blocks.2.cross_attn.key.weight (tid)
+  [62] 5099/decoder.blocks.2.cross_attn.value.weight (tid)
+  [63] 5099/decoder.blocks.2.cross_attn.value.bias (tid)
+  [64] 5099/decoder.blocks.2.cross_attn.out.weight (tid)
+  [65] 5099/decoder.blocks.2.cross_attn.out.bias (tid)
+  [66] 5099/decoder.blocks.2.cross_attn_ln.weight (tid)
+  [67] 5099/decoder.blocks.2.cross_attn_ln.bias (tid)
+  [68] 5099/decoder.blocks.2.mlp.0.weight (tid)
+  [69] 5099/decoder.blocks.2.mlp.0.bias (tid)
+  [70] 5099/decoder.blocks.2.mlp.2.weight (tid)
+  [71] 5099/decoder.blocks.2.mlp.2.bias (tid)
+  [72] 5099/decoder.blocks.2.mlp_ln.weight (tid)
+  [73] 5099/decoder.blocks.2.mlp_ln.bias (tid)
+  [74] 5099/decoder.blocks.3.attn.query.weight (tid)
+  [75] 5099/decoder.blocks.3.attn.query.bias (tid)
+  [76] 5099/decoder.blocks.3.attn.key.weight (tid)
+  [77] 5099/decoder.blocks.3.attn.value.weight (tid)
+  [78] 5099/decoder.blocks.3.attn.value.bias (tid)
+  [79] 5099/decoder.blocks.3.attn.out.weight (tid)
+  [80] 5099/decoder.blocks.3.attn.out.bias (tid)
+  [81] 5099/decoder.blocks.3.attn_ln.weight (tid)
+  [82] 5099/decoder.blocks.3.attn_ln.bias (tid)
+  [83] 5099/decoder.blocks.3.cross_attn.query.weight (tid)
+  [84] 5099/decoder.blocks.3.cross_attn.query.bias (tid)
+  [85] 5099/decoder.blocks.3.cross_attn.key.weight (tid)
+  [86] 5099/decoder.blocks.3.cross_attn.value.weight (tid)
+  [87] 5099/decoder.blocks.3.cross_attn.value.bias (tid)
+  [88] 5099/decoder.blocks.3.cross_attn.out.weight (tid)
+  [89] 5099/decoder.blocks.3.cross_attn.out.bias (tid)
+  [90] 5099/decoder.blocks.3.cross_attn_ln.weight (tid)
+  [91] 5099/decoder.blocks.3.cross_attn_ln.bias (tid)
+  [92] 5099/decoder.blocks.3.mlp.0.weight (tid)
+  [93] 5099/decoder.blocks.3.mlp.0.bias (tid)
+  [94] 5099/decoder.blocks.3.mlp.2.weight (tid)
+  [95] 5099/decoder.blocks.3.mlp.2.bias (tid)
+  [96] 5099/decoder.blocks.3.mlp_ln.weight (tid)
+  [97] 5099/decoder.blocks.3.mlp_ln.bias (tid)
+  [98] 5099/decoder.ln.weight (tid)
+  [99] 5099/decoder.ln.bias (tid)
+  [104] 5099/decoder.blocks.0.attn.kv_cache.k_cache (tid)
+  [105] 5099/decoder.blocks.0.attn.kv_cache.v_cache (tid)
+  [106] 5099/decoder.blocks.1.attn.kv_cache.k_cache (tid)
+  [107] 5099/decoder.blocks.1.attn.kv_cache.v_cache (tid)
+  [108] 5099/decoder.blocks.2.attn.kv_cache.k_cache (tid)
+  [109] 5099/decoder.blocks.2.attn.kv_cache.v_cache (tid)
+  [110] 5099/decoder.blocks.3.attn.kv_cache.k_cache (tid)
+  [111] 5099/decoder.blocks.3.attn.kv_cache.v_cache (tid)
+  [100] 5099/tokens (tid)
+  [101] 5099/positions (tid)
+  [102] 5099/encodings (tid)
+  [103] 5099/aten__to_copy_default_27 (tid)
+
+Inputs:
+  tid 100
+  tid 101
+  tid 102
+
+Outputs:
+  tid 103
+======================================================================
+
+
+======================================================================
+MLX DELEGATE 1 (plan index 0)
+======================================================================
+Version: 1
+Constant tensors: 83
+Input tensors: 1
+Output tensors: 1
+Mutable buffer tensors: 0
+Temp tensors: 198
+Values: 0
+Instruction chains: 1
+Main chain idx: 0
+
+Chain 0 (main) (204 instructions):
+  [0] ReshapeNode
+      x: tid 83
+      out: tid 86
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': -1}]
+  [1] PadNode
+      x: tid 86
+      out: tid 87
+      pad_width: [{'literal': 0}, {'literal': 0}, {'literal': 0}, {'literal': 0}, {'literal': 200}, {'literal': 200}]
+      mode: constant
+      constant_value: 0.0
+  [2] TransposeNode
+      x: tid 87
+      out: tid 85
+      perm: [0, 2, 1]
+  [3] Conv1DNode
+      x: tid 85
+      w: tid 78
+      out: tid 85
+      stride: 160
+      padding: 0
+      dilation: 1
+      groups: 1
+  [4] TransposeNode
+      x: tid 85
+      out: tid 104
+      perm: [0, 2, 1]
+  [5] ReshapeNode
+      x: tid 104
+      out: tid 89
+      shape: [{'literal': 201}, {'literal': 2}, {'literal': -1}]
+  [6] PowerNode
+      a: tid 89
+      b: tid 79
+      out: tid 105
+  [7] SumNode
+      x: tid 105
+      out: tid 99
+      axes: [1]
+      keepdims: False
+  [8] AddNode
+      a: tid 99
+      b: tid 66
+      out: tid 103
+  [9] SqrtNode
+      x: tid 103
+      out: tid 90
+  [10] TransposeNode
+      x: tid 65
+      out: tid 107
+      perm: [1, 0]
+  [11] AddmmNode
+      mat1: tid 107
+      mat2: tid 90
+      out: tid 108
+      alpha: 1.0
+      beta: 1.0
+  [12] ClipNode
+      x: tid 108
+      out: tid 93
+      a_min: tid 80
+  [13] LogNode
+      x: tid 93
+      out: tid 100
+  [14] MaxNode
+      x: tid 100
+      out: tid 109
+      axes: []
+      keepdims: False
+  [15] SubtractNode
+      a: tid 109
+      b: tid 67
+      out: tid 96
+  [16] MaximumNode
+      a: tid 100
+      b: tid 96
+      out: tid 110
+  [17] AddNode
+      a: tid 110
+      b: tid 68
+      out: tid 106
+  [18] DivideNode
+      a: tid 106
+      b: tid 69
+      out: tid 112
+  [19] PadNode
+      x: tid 112
+      out: tid 97
+      pad_width: [{'literal': 0}, {'literal': 0}, {'literal': 0}, {'literal': 3001}]
+      mode: constant
+      constant_value: 0.0
+  [20] SliceNode
+      x: tid 97
+      out: tid 101
+      axis: {'literal': 1}
+      start: {'literal': 0}
+      stop: {'literal': 3000}
+      step: 1
+  [21] ExpandDimsNode
+      x: tid 101
+      out: tid 113
+      axis: 0
+  [22] AsTypeNode
+      x: tid 113
+      out: tid 98
+      scalar_type: 15
+  [23] TransposeNode
+      x: tid 98
+      out: tid 102
+      perm: [0, 2, 1]
+  [24] Conv1DNode
+      x: tid 102
+      w: tid 81
+      out: tid 102
+      stride: 1
+      padding: 1
+      dilation: 1
+      groups: 1
+  [25] ReshapeNode
+      x: tid 0
+      out: tid 111
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': -1}]
+  [26] AddNode
+      a: tid 102
+      b: tid 111
+      out: tid 102
+  [27] TransposeNode
+      x: tid 102
+      out: tid 115
+      perm: [0, 2, 1]
+  [28] GeluNode
+      x: tid 115
+      out: tid 91
+      approximate: none
+  [29] TransposeNode
+      x: tid 91
+      out: tid 114
+      perm: [0, 2, 1]
+  [30] Conv1DNode
+      x: tid 114
+      w: tid 82
+      out: tid 114
+      stride: 2
+      padding: 1
+      dilation: 1
+      groups: 1
+  [31] ReshapeNode
+      x: tid 1
+      out: tid 116
+      shape: [{'literal': 1}, {'literal': 1}, {'literal': -1}]
+  [32] AddNode
+      a: tid 114
+      b: tid 116
+      out: tid 114
+  [33] TransposeNode
+      x: tid 114
+      out: tid 127
+      perm: [0, 2, 1]
+  [34] GeluNode
+      x: tid 127
+      out: tid 94
+      approximate: none
+  [35] TransposeNode
+      x: tid 94
+      out: tid 122
+      perm: [0, 2, 1]
+  [36] AddNode
+      a: tid 122
+      b: tid 64
+      out: tid 88
+  [37] AsTypeNode
+      x: tid 88
+      out: tid 120
+      scalar_type: 6
+  [38] LayerNormNode
+      x: tid 120
+      out: tid 139
+      weight: tid 9
+      bias: tid 10
+      eps: 9.999999747378752e-06
+  [39] IdCopyNode
+      x: tid 139
+      out: tid 126
+  [40] AsTypeNode
+      x: tid 126
+      out: tid 144
+      scalar_type: 15
+  [41] TransposeNode
+      x: tid 2
+      out: tid 160
+      perm: [1, 0]
+  [42] AddmmNode
+      mat1: tid 144
+      mat2: tid 160
+      out: tid 147
+      bias: tid 3
+      alpha: 1.0
+      beta: 1.0
+  [43] TransposeNode
+      x: tid 4
+      out: tid 161
+      perm: [1, 0]
+  [44] AddmmNode
+      mat1: tid 144
+      mat2: tid 161
+      out: tid 124
+      alpha: 1.0
+      beta: 1.0
+  [45] TransposeNode
+      x: tid 5
+      out: tid 178
+      perm: [1, 0]
+  [46] AddmmNode
+      mat1: tid 144
+      mat2: tid 178
+      out: tid 167
+      bias: tid 6
+      alpha: 1.0
+      beta: 1.0
+  [47] ReshapeNode
+      x: tid 147
+      out: tid 146
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [48] TransposeNode
+      x: tid 146
+      out: tid 158
+      perm: [0, 2, 1, 3]
+  [49] ReshapeNode
+      x: tid 124
+      out: tid 131
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [50] TransposeNode
+      x: tid 131
+      out: tid 118
+      perm: [0, 2, 1, 3]
+  [51] ReshapeNode
+      x: tid 167
+      out: tid 134
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [52] TransposeNode
+      x: tid 134
+      out: tid 170
+      perm: [0, 2, 1, 3]
+  [53] AsTypeNode
+      x: tid 70
+      out: tid 132
+      scalar_type: 15
+  [54] MultiplyNode
+      a: tid 158
+      b: tid 132
+      out: tid 181
+  [55] AsTypeNode
+      x: tid 71
+      out: tid 155
+      scalar_type: 15
+  [56] MultiplyNode
+      a: tid 118
+      b: tid 155
+      out: tid 142
+  [57] TransposeNode
+      x: tid 142
+      out: tid 149
+      perm: [0, 1, 3, 2]
+  [58] AddmmNode
+      mat1: tid 181
+      mat2: tid 149
+      out: tid 119
+      alpha: 1.0
+      beta: 1.0
+  [59] AsTypeNode
+      x: tid 119
+      out: tid 140
+      scalar_type: 6
+  [60] SoftmaxNode
+      x: tid 140
+      out: tid 148
+      axis: -1
+      precise: False
+  [61] AsTypeNode
+      x: tid 148
+      out: tid 180
+      scalar_type: 15
+  [62] AddmmNode
+      mat1: tid 180
+      mat2: tid 170
+      out: tid 125
+      alpha: 1.0
+      beta: 1.0
+  [63] TransposeNode
+      x: tid 125
+      out: tid 130
+      perm: [0, 2, 1, 3]
+  [64] ReshapeNode
+      x: tid 130
+      out: tid 152
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 384}]
+  [65] TransposeNode
+      x: tid 7
+      out: tid 179
+      perm: [1, 0]
+  [66] AddmmNode
+      mat1: tid 152
+      mat2: tid 179
+      out: tid 162
+      bias: tid 8
+      alpha: 1.0
+      beta: 1.0
+  [67] AddNode
+      a: tid 88
+      b: tid 162
+      out: tid 128
+  [68] AsTypeNode
+      x: tid 128
+      out: tid 123
+      scalar_type: 6
+  [69] LayerNormNode
+      x: tid 123
+      out: tid 157
+      weight: tid 15
+      bias: tid 16
+      eps: 9.999999747378752e-06
+  [70] IdCopyNode
+      x: tid 157
+      out: tid 117
+  [71] AsTypeNode
+      x: tid 117
+      out: tid 166
+      scalar_type: 15
+  [72] TransposeNode
+      x: tid 11
+      out: tid 121
+      perm: [1, 0]
+  [73] AddmmNode
+      mat1: tid 166
+      mat2: tid 121
+      out: tid 95
+      bias: tid 12
+      alpha: 1.0
+      beta: 1.0
+  [74] GeluNode
+      x: tid 95
+      out: tid 150
+      approximate: none
+  [75] TransposeNode
+      x: tid 13
+      out: tid 92
+      perm: [1, 0]
+  [76] AddmmNode
+      mat1: tid 150
+      mat2: tid 92
+      out: tid 174
+      bias: tid 14
+      alpha: 1.0
+      beta: 1.0
+  [77] AddNode
+      a: tid 128
+      b: tid 174
+      out: tid 156
+  [78] AsTypeNode
+      x: tid 156
+      out: tid 129
+      scalar_type: 6
+  [79] LayerNormNode
+      x: tid 129
+      out: tid 163
+      weight: tid 24
+      bias: tid 25
+      eps: 9.999999747378752e-06
+  [80] IdCopyNode
+      x: tid 163
+      out: tid 135
+  [81] AsTypeNode
+      x: tid 135
+      out: tid 177
+      scalar_type: 15
+  [82] TransposeNode
+      x: tid 17
+      out: tid 191
+      perm: [1, 0]
+  [83] AddmmNode
+      mat1: tid 177
+      mat2: tid 191
+      out: tid 185
+      bias: tid 18
+      alpha: 1.0
+      beta: 1.0
+  [84] TransposeNode
+      x: tid 19
+      out: tid 192
+      perm: [1, 0]
+  [85] AddmmNode
+      mat1: tid 177
+      mat2: tid 192
+      out: tid 145
+      alpha: 1.0
+      beta: 1.0
+  [86] TransposeNode
+      x: tid 20
+      out: tid 215
+      perm: [1, 0]
+  [87] AddmmNode
+      mat1: tid 177
+      mat2: tid 215
+      out: tid 214
+      bias: tid 21
+      alpha: 1.0
+      beta: 1.0
+  [88] ReshapeNode
+      x: tid 185
+      out: tid 176
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [89] TransposeNode
+      x: tid 176
+      out: tid 189
+      perm: [0, 2, 1, 3]
+  [90] ReshapeNode
+      x: tid 145
+      out: tid 172
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [91] TransposeNode
+      x: tid 172
+      out: tid 136
+      perm: [0, 2, 1, 3]
+  [92] ReshapeNode
+      x: tid 214
+      out: tid 164
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [93] TransposeNode
+      x: tid 164
+      out: tid 195
+      perm: [0, 2, 1, 3]
+  [94] AsTypeNode
+      x: tid 72
+      out: tid 168
+      scalar_type: 15
+  [95] MultiplyNode
+      a: tid 189
+      b: tid 168
+      out: tid 216
+  [96] AsTypeNode
+      x: tid 73
+      out: tid 184
+      scalar_type: 15
+  [97] MultiplyNode
+      a: tid 136
+      b: tid 184
+      out: tid 173
+  [98] TransposeNode
+      x: tid 173
+      out: tid 187
+      perm: [0, 1, 3, 2]
+  [99] AddmmNode
+      mat1: tid 216
+      mat2: tid 187
+      out: tid 133
+      alpha: 1.0
+      beta: 1.0
+  [100] AsTypeNode
+      x: tid 133
+      out: tid 165
+      scalar_type: 6
+  [101] SoftmaxNode
+      x: tid 165
+      out: tid 217
+      axis: -1
+      precise: False
+  [102] AsTypeNode
+      x: tid 217
+      out: tid 137
+      scalar_type: 15
+  [103] AddmmNode
+      mat1: tid 137
+      mat2: tid 195
+      out: tid 183
+      alpha: 1.0
+      beta: 1.0
+  [104] TransposeNode
+      x: tid 183
+      out: tid 175
+      perm: [0, 2, 1, 3]
+  [105] ReshapeNode
+      x: tid 175
+      out: tid 190
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 384}]
+  [106] TransposeNode
+      x: tid 22
+      out: tid 218
+      perm: [1, 0]
+  [107] AddmmNode
+      mat1: tid 190
+      mat2: tid 218
+      out: tid 196
+      bias: tid 23
+      alpha: 1.0
+      beta: 1.0
+  [108] AddNode
+      a: tid 156
+      b: tid 196
+      out: tid 141
+  [109] AsTypeNode
+      x: tid 141
+      out: tid 151
+      scalar_type: 6
+  [110] LayerNormNode
+      x: tid 151
+      out: tid 169
+      weight: tid 30
+      bias: tid 31
+      eps: 9.999999747378752e-06
+  [111] IdCopyNode
+      x: tid 169
+      out: tid 154
+  [112] AsTypeNode
+      x: tid 154
+      out: tid 202
+      scalar_type: 15
+  [113] TransposeNode
+      x: tid 26
+      out: tid 171
+      perm: [1, 0]
+  [114] AddmmNode
+      mat1: tid 202
+      mat2: tid 171
+      out: tid 153
+      bias: tid 27
+      alpha: 1.0
+      beta: 1.0
+  [115] GeluNode
+      x: tid 153
+      out: tid 182
+      approximate: none
+  [116] TransposeNode
+      x: tid 28
+      out: tid 159
+      perm: [1, 0]
+  [117] AddmmNode
+      mat1: tid 182
+      mat2: tid 159
+      out: tid 207
+      bias: tid 29
+      alpha: 1.0
+      beta: 1.0
+  [118] AddNode
+      a: tid 141
+      b: tid 207
+      out: tid 186
+  [119] AsTypeNode
+      x: tid 186
+      out: tid 203
+      scalar_type: 6
+  [120] LayerNormNode
+      x: tid 203
+      out: tid 143
+      weight: tid 39
+      bias: tid 40
+      eps: 9.999999747378752e-06
+  [121] IdCopyNode
+      x: tid 143
+      out: tid 211
+  [122] AsTypeNode
+      x: tid 211
+      out: tid 220
+      scalar_type: 15
+  [123] TransposeNode
+      x: tid 32
+      out: tid 138
+      perm: [1, 0]
+  [124] AddmmNode
+      mat1: tid 220
+      mat2: tid 138
+      out: tid 238
+      bias: tid 33
+      alpha: 1.0
+      beta: 1.0
+  [125] TransposeNode
+      x: tid 34
+      out: tid 246
+      perm: [1, 0]
+  [126] AddmmNode
+      mat1: tid 220
+      mat2: tid 246
+      out: tid 200
+      alpha: 1.0
+      beta: 1.0
+  [127] TransposeNode
+      x: tid 35
+      out: tid 254
+      perm: [1, 0]
+  [128] AddmmNode
+      mat1: tid 220
+      mat2: tid 254
+      out: tid 249
+      bias: tid 36
+      alpha: 1.0
+      beta: 1.0
+  [129] ReshapeNode
+      x: tid 238
+      out: tid 225
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [130] TransposeNode
+      x: tid 225
+      out: tid 245
+      perm: [0, 2, 1, 3]
+  [131] ReshapeNode
+      x: tid 200
+      out: tid 227
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [132] TransposeNode
+      x: tid 227
+      out: tid 212
+      perm: [0, 2, 1, 3]
+  [133] ReshapeNode
+      x: tid 249
+      out: tid 221
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [134] TransposeNode
+      x: tid 221
+      out: tid 253
+      perm: [0, 2, 1, 3]
+  [135] AsTypeNode
+      x: tid 74
+      out: tid 222
+      scalar_type: 15
+  [136] MultiplyNode
+      a: tid 245
+      b: tid 222
+      out: tid 261
+  [137] AsTypeNode
+      x: tid 75
+      out: tid 224
+      scalar_type: 15
+  [138] MultiplyNode
+      a: tid 212
+      b: tid 224
+      out: tid 235
+  [139] TransposeNode
+      x: tid 235
+      out: tid 213
+      perm: [0, 1, 3, 2]
+  [140] AddmmNode
+      mat1: tid 261
+      mat2: tid 213
+      out: tid 223
+      alpha: 1.0
+      beta: 1.0
+  [141] AsTypeNode
+      x: tid 223
+      out: tid 262
+      scalar_type: 6
+  [142] SoftmaxNode
+      x: tid 262
+      out: tid 197
+      axis: -1
+      precise: False
+  [143] AsTypeNode
+      x: tid 197
+      out: tid 226
+      scalar_type: 15
+  [144] AddmmNode
+      mat1: tid 226
+      mat2: tid 253
+      out: tid 231
+      alpha: 1.0
+      beta: 1.0
+  [145] TransposeNode
+      x: tid 231
+      out: tid 251
+      perm: [0, 2, 1, 3]
+  [146] ReshapeNode
+      x: tid 251
+      out: tid 263
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 384}]
+  [147] TransposeNode
+      x: tid 37
+      out: tid 219
+      perm: [1, 0]
+  [148] AddmmNode
+      mat1: tid 263
+      mat2: tid 219
+      out: tid 193
+      bias: tid 38
+      alpha: 1.0
+      beta: 1.0
+  [149] AddNode
+      a: tid 186
+      b: tid 193
+      out: tid 241
+  [150] AsTypeNode
+      x: tid 241
+      out: tid 248
+      scalar_type: 6
+  [151] LayerNormNode
+      x: tid 248
+      out: tid 256
+      weight: tid 45
+      bias: tid 46
+      eps: 9.999999747378752e-06
+  [152] IdCopyNode
+      x: tid 256
+      out: tid 250
+  [153] AsTypeNode
+      x: tid 250
+      out: tid 205
+      scalar_type: 15
+  [154] TransposeNode
+      x: tid 41
+      out: tid 188
+      perm: [1, 0]
+  [155] AddmmNode
+      mat1: tid 205
+      mat2: tid 188
+      out: tid 252
+      bias: tid 42
+      alpha: 1.0
+      beta: 1.0
+  [156] GeluNode
+      x: tid 252
+      out: tid 257
+      approximate: none
+  [157] TransposeNode
+      x: tid 43
+      out: tid 247
+      perm: [1, 0]
+  [158] AddmmNode
+      mat1: tid 257
+      mat2: tid 247
+      out: tid 208
+      bias: tid 44
+      alpha: 1.0
+      beta: 1.0
+  [159] AddNode
+      a: tid 241
+      b: tid 208
+      out: tid 258
+  [160] AsTypeNode
+      x: tid 258
+      out: tid 198
+      scalar_type: 6
+  [161] LayerNormNode
+      x: tid 198
+      out: tid 228
+      weight: tid 54
+      bias: tid 55
+      eps: 9.999999747378752e-06
+  [162] IdCopyNode
+      x: tid 228
+      out: tid 209
+  [163] AsTypeNode
+      x: tid 209
+      out: tid 233
+      scalar_type: 15
+  [164] TransposeNode
+      x: tid 47
+      out: tid 273
+      perm: [1, 0]
+  [165] AddmmNode
+      mat1: tid 233
+      mat2: tid 273
+      out: tid 266
+      bias: tid 48
+      alpha: 1.0
+      beta: 1.0
+  [166] TransposeNode
+      x: tid 49
+      out: tid 274
+      perm: [1, 0]
+  [167] AddmmNode
+      mat1: tid 233
+      mat2: tid 274
+      out: tid 204
+      alpha: 1.0
+      beta: 1.0
+  [168] TransposeNode
+      x: tid 50
+      out: tid 279
+      perm: [1, 0]
+  [169] AddmmNode
+      mat1: tid 233
+      mat2: tid 279
+      out: tid 276
+      bias: tid 51
+      alpha: 1.0
+      beta: 1.0
+  [170] ReshapeNode
+      x: tid 266
+      out: tid 236
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [171] TransposeNode
+      x: tid 236
+      out: tid 268
+      perm: [0, 2, 1, 3]
+  [172] ReshapeNode
+      x: tid 204
+      out: tid 239
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [173] TransposeNode
+      x: tid 239
+      out: tid 199
+      perm: [0, 2, 1, 3]
+  [174] ReshapeNode
+      x: tid 276
+      out: tid 232
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 6}, {'literal': -1}]
+  [175] TransposeNode
+      x: tid 232
+      out: tid 275
+      perm: [0, 2, 1, 3]
+  [176] AsTypeNode
+      x: tid 76
+      out: tid 230
+      scalar_type: 15
+  [177] MultiplyNode
+      a: tid 268
+      b: tid 230
+      out: tid 282
+  [178] AsTypeNode
+      x: tid 77
+      out: tid 265
+      scalar_type: 15
+  [179] MultiplyNode
+      a: tid 199
+      b: tid 265
+      out: tid 234
+  [180] TransposeNode
+      x: tid 234
+      out: tid 269
+      perm: [0, 1, 3, 2]
+  [181] AddmmNode
+      mat1: tid 282
+      mat2: tid 269
+      out: tid 194
+      alpha: 1.0
+      beta: 1.0
+  [182] AsTypeNode
+      x: tid 194
+      out: tid 240
+      scalar_type: 6
+  [183] SoftmaxNode
+      x: tid 240
+      out: tid 271
+      axis: -1
+      precise: False
+  [184] AsTypeNode
+      x: tid 271
+      out: tid 280
+      scalar_type: 15
+  [185] AddmmNode
+      mat1: tid 280
+      mat2: tid 275
+      out: tid 201
+      alpha: 1.0
+      beta: 1.0
+  [186] TransposeNode
+      x: tid 201
+      out: tid 229
+      perm: [0, 2, 1, 3]
+  [187] ReshapeNode
+      x: tid 229
+      out: tid 267
+      shape: [{'literal': 1}, {'literal': 1500}, {'literal': 384}]
+  [188] TransposeNode
+      x: tid 52
+      out: tid 281
+      perm: [1, 0]
+  [189] AddmmNode
+      mat1: tid 267
+      mat2: tid 281
+      out: tid 278
+      bias: tid 53
+      alpha: 1.0
+      beta: 1.0
+  [190] AddNode
+      a: tid 258
+      b: tid 278
+      out: tid 206
+  [191] AsTypeNode
+      x: tid 206
+      out: tid 243
+      scalar_type: 6
+  [192] LayerNormNode
+      x: tid 243
+      out: tid 260
+      weight: tid 60
+      bias: tid 61
+      eps: 9.999999747378752e-06
+  [193] IdCopyNode
+      x: tid 260
+      out: tid 237
+  [194] AsTypeNode
+      x: tid 237
+      out: tid 259
+      scalar_type: 15
+  [195] TransposeNode
+      x: tid 56
+      out: tid 277
+      perm: [1, 0]
+  [196] AddmmNode
+      mat1: tid 259
+      mat2: tid 277
+      out: tid 270
+      bias: tid 57
+      alpha: 1.0
+      beta: 1.0
+  [197] GeluNode
+      x: tid 270
+      out: tid 244
+      approximate: none
+  [198] TransposeNode
+      x: tid 58
+      out: tid 272
+      perm: [1, 0]
+  [199] AddmmNode
+      mat1: tid 244
+      mat2: tid 272
+      out: tid 264
+      bias: tid 59
+      alpha: 1.0
+      beta: 1.0
+  [200] AddNode
+      a: tid 206
+      b: tid 264
+      out: tid 242
+  [201] AsTypeNode
+      x: tid 242
+      out: tid 255
+      scalar_type: 6
+  [202] LayerNormNode
+      x: tid 255
+      out: tid 210
+      weight: tid 62
+      bias: tid 63
+      eps: 9.999999747378752e-06
+  [203] IdCopyNode
+      x: tid 210
+      out: tid 84
+
+Named Slots:
+  [0] cca4/_encoder.conv1.bias (tid)
+  [1] cca4/_encoder.conv2.bias (tid)
+  [2] cca4/_encoder.blocks.0.attn.query.weight (tid)
+  [3] cca4/_encoder.blocks.0.attn.query.bias (tid)
+  [4] cca4/_encoder.blocks.0.attn.key.weight (tid)
+  [5] cca4/_encoder.blocks.0.attn.value.weight (tid)
+  [6] cca4/_encoder.blocks.0.attn.value.bias (tid)
+  [7] cca4/_encoder.blocks.0.attn.out.weight (tid)
+  [8] cca4/_encoder.blocks.0.attn.out.bias (tid)
+  [9] cca4/_encoder.blocks.0.attn_ln.weight (tid)
+  [10] cca4/_encoder.blocks.0.attn_ln.bias (tid)
+  [11] cca4/_encoder.blocks.0.mlp.0.weight (tid)
+  [12] cca4/_encoder.blocks.0.mlp.0.bias (tid)
+  [13] cca4/_encoder.blocks.0.mlp.2.weight (tid)
+  [14] cca4/_encoder.blocks.0.mlp.2.bias (tid)
+  [15] cca4/_encoder.blocks.0.mlp_ln.weight (tid)
+  [16] cca4/_encoder.blocks.0.mlp_ln.bias (tid)
+  [17] cca4/_encoder.blocks.1.attn.query.weight (tid)
+  [18] cca4/_encoder.blocks.1.attn.query.bias (tid)
+  [19] cca4/_encoder.blocks.1.attn.key.weight (tid)
+  [20] cca4/_encoder.blocks.1.attn.value.weight (tid)
+  [21] cca4/_encoder.blocks.1.attn.value.bias (tid)
+  [22] cca4/_encoder.blocks.1.attn.out.weight (tid)
+  [23] cca4/_encoder.blocks.1.attn.out.bias (tid)
+  [24] cca4/_encoder.blocks.1.attn_ln.weight (tid)
+  [25] cca4/_encoder.blocks.1.attn_ln.bias (tid)
+  [26] cca4/_encoder.blocks.1.mlp.0.weight (tid)
+  [27] cca4/_encoder.blocks.1.mlp.0.bias (tid)
+  [28] cca4/_encoder.blocks.1.mlp.2.weight (tid)
+  [29] cca4/_encoder.blocks.1.mlp.2.bias (tid)
+  [30] cca4/_encoder.blocks.1.mlp_ln.weight (tid)
+  [31] cca4/_encoder.blocks.1.mlp_ln.bias (tid)
+  [32] cca4/_encoder.blocks.2.attn.query.weight (tid)
+  [33] cca4/_encoder.blocks.2.attn.query.bias (tid)
+  [34] cca4/_encoder.blocks.2.attn.key.weight (tid)
+  [35] cca4/_encoder.blocks.2.attn.value.weight (tid)
+  [36] cca4/_encoder.blocks.2.attn.value.bias (tid)
+  [37] cca4/_encoder.blocks.2.attn.out.weight (tid)
+  [38] cca4/_encoder.blocks.2.attn.out.bias (tid)
+  [39] cca4/_encoder.blocks.2.attn_ln.weight (tid)
+  [40] cca4/_encoder.blocks.2.attn_ln.bias (tid)
+  [41] cca4/_encoder.blocks.2.mlp.0.weight (tid)
+  [42] cca4/_encoder.blocks.2.mlp.0.bias (tid)
+  [43] cca4/_encoder.blocks.2.mlp.2.weight (tid)
+  [44] cca4/_encoder.blocks.2.mlp.2.bias (tid)
+  [45] cca4/_encoder.blocks.2.mlp_ln.weight (tid)
+  [46] cca4/_encoder.blocks.2.mlp_ln.bias (tid)
+  [47] cca4/_encoder.blocks.3.attn.query.weight (tid)
+  [48] cca4/_encoder.blocks.3.attn.query.bias (tid)
+  [49] cca4/_encoder.blocks.3.attn.key.weight (tid)
+  [50] cca4/_encoder.blocks.3.attn.value.weight (tid)
+  [51] cca4/_encoder.blocks.3.attn.value.bias (tid)
+  [52] cca4/_encoder.blocks.3.attn.out.weight (tid)
+  [53] cca4/_encoder.blocks.3.attn.out.bias (tid)
+  [54] cca4/_encoder.blocks.3.attn_ln.weight (tid)
+  [55] cca4/_encoder.blocks.3.attn_ln.bias (tid)
+  [56] cca4/_encoder.blocks.3.mlp.0.weight (tid)
+  [57] cca4/_encoder.blocks.3.mlp.0.bias (tid)
+  [58] cca4/_encoder.blocks.3.mlp.2.weight (tid)
+  [59] cca4/_encoder.blocks.3.mlp.2.bias (tid)
+  [60] cca4/_encoder.blocks.3.mlp_ln.weight (tid)
+  [61] cca4/_encoder.blocks.3.mlp_ln.bias (tid)
+  [62] cca4/_encoder.ln_post.weight (tid)
+  [63] cca4/_encoder.ln_post.bias (tid)
+  [64] cca4/_encoder.positional_embedding (tid)
+  [65] cca4/_preprocessor.mel_filters (tid)
+  [66] cca4/_lifted_tensor_constant12 (tid)
+  [67] cca4/_lifted_tensor_constant13 (tid)
+  [68] cca4/_lifted_tensor_constant14 (tid)
+  [69] cca4/_lifted_tensor_constant15 (tid)
+  [70] cca4/_lifted_tensor_constant16 (tid)
+  [71] cca4/_lifted_tensor_constant17 (tid)
+  [72] cca4/_lifted_tensor_constant18 (tid)
+  [73] cca4/_lifted_tensor_constant19 (tid)
+  [74] cca4/_lifted_tensor_constant20 (tid)
+  [75] cca4/_lifted_tensor_constant21 (tid)
+  [76] cca4/_lifted_tensor_constant22 (tid)
+  [77] cca4/_lifted_tensor_constant23 (tid)
+  [83] cca4/waveform (tid)
+  [84] cca4/getitem_8 (tid)
+  [78] cca4/_preprocessor.stft_kernel_channel_last (tid)
+  [79] cca4/_scalar_2 (tid)
+  [80] cca4/_scalar_1e-10 (tid)
+  [81] cca4/_encoder.conv1.weight_channel_last (tid)
+  [82] cca4/_encoder.conv2.weight_channel_last (tid)
+
+Inputs:
+  tid 83
+
+Outputs:
+  tid 84
+======================================================================
+

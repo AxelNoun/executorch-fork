@@ -1,0 +1,32 @@
+I 00:00:00.022413 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.022860 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.022898 executorch:executor_runner.cpp:386] Resetting threadpool with num threads = 3
+I 00:00:00.022903 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.022997 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.023214 executorch:threadpool.cpp:66] Resetting threadpool to 3 threads.
+I 00:00:00.023661 executorch:executor_runner.cpp:521] Model file tiny_int8.pte is loaded.
+I 00:00:00.023675 executorch:executor_runner.cpp:531] Using method encode
+I 00:00:00.023680 executorch:executor_runner.cpp:605] Setting up CPU planned buffer 0, size 4224000.
+I 00:00:00.077515 executorch:MLXExecutor.h:848] MLX constants: 132 loaded, 0 copied by MLX (0 bytes resident twice)
+I 00:00:00.154749 executorch:executor_runner.cpp:342] [after load_method] rss 27.0 MiB, phys_footprint 20.0 MiB, lifetime_max_phys_footprint 20.1 MiB
+I 00:00:00.154768 executorch:executor_runner.cpp:693] Model loaded in 131.360125 ms.
+E 00:00:00.156143 executorch:MLXBackend.cpp:511] MLX execute failed: [scatter_add_axis] Received invalid axis for array with 3 dimensions.
+E 00:00:00.156336 executorch:method.cpp:1530] CALL_DELEGATE execute failed at instruction 0: 0x1
+F 00:00:00.156344 executorch:executor_runner.cpp:841] In function main(), assert failed (status == Error::Ok): Execution of method encode failed with status 0x1
+time: command terminated abnormally
+        0.17 real         0.04 user         0.04 sys
+            30965760  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2126  page reclaims
+                  21  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   2  voluntary context switches
+                  96  involuntary context switches
+            23151936  peak memory footprint
