@@ -1,30 +1,26 @@
-# Expériences macOS de AUDIT_22513.md (§ 5 : E1, E3, E6, E7, E8, E9) sur un runner
-# GitHub Actions Apple Silicon. À copier dans .github/workflows/ d'une branche du fork
-# qui contient audit_22513/ (patches + ci/), puis « Run workflow ».
+# Expériences macOS de AUDIT_22513.md (§ 5) sur des runners GitHub Actions Apple Silicon.
+# Deux jobs en matrice : le runtime upstream v1.4.1 (branche audit/22513-macos = v1.4.1 +
+# audit_22513/) et le runtime du fork Software Mansion (schéma MLX du rapporteur : son
+# whisper_small_mlx_int8.pte ne s'exécute pas sur upstream, op_type 122 = ScatterAdd).
 #
 # Ce que ça mesure et ce que ça ne mesure pas :
-# - le runner est une VM : Metal expose « Apple Paravirtual device » (MLX le gère,
-#   mlx/backend/metal/allocator.cpp:66-70). Les mécanismes (RSS vs footprint,
-#   règles de coupe, variables MLX_*) sont testables ; les valeurs absolues d'un
-#   iPhone, non. E3/E4 sur l'appareil restent au rapporteur.
-# - runner standard `macos-26` : 3 vCPU / 7 Go RAM (gratuit pour un dépôt public).
-#   `macos-26-xlarge` (payant) si l'export whisper-small fusionné manque de RAM.
-# - ExecuTorch et MLX exécutent déjà leurs tests Metal sur ces runners
-#   (.github/workflows/mlx.yml, ml-explore/mlx build_and_test.yml).
+# - runner = VM : Metal expose « Apple Paravirtual device » (architecture air64_v27 ->
+#   seuils MLX `default` 40/40 ; MLX le gère, allocator.cpp:66-70). Mécanismes testables
+#   (RSS vs footprint, coupe, MLX_MAX_*, alignement, loaders) ; valeurs absolues iPhone, non.
+# - runner standard `macos-26` : 3 vCPU / 7 Go RAM, gratuit pour un dépôt public.
+# - Déclenchement : push sur audit/22513-* (workflow_dispatch exigerait le fichier sur main).
 name: audit-22513-macos
 
 on:
-  # push : déclenche sans passer par la branche par défaut du fork (workflow_dispatch
-  # exige le fichier sur main). Les inputs sont vides sur un push : replis dans env.
   push:
     branches: ["audit/22513-*"]
   workflow_dispatch:
     inputs:
       pte_url:
-        description: ".pte non fusionné à mesurer (fichier public du rapporteur)"
+        description: ".pte small int8 du rapporteur"
         default: "https://huggingface.co/software-mansion/react-native-executorch-whisper-small/resolve/v0.10.0/mlx/whisper_small_mlx_int8.pte"
       tiny_url:
-        description: ".pte tiny bf16 non fusionné (comparaison E3 avec l'export fusionné du dépôt)"
+        description: ".pte tiny bf16 du rapporteur"
         default: "https://huggingface.co/software-mansion/react-native-executorch-whisper-tiny/resolve/v0.10.0/mlx/whisper_tiny_mlx_bf16.pte"
       export_fused_model:
         description: "modèle HF à exporter fusionné avec export_whisper.py (E3) ; vide = sauter"
@@ -37,19 +33,37 @@ env:
   PTE_URL: ${{ inputs.pte_url || 'https://huggingface.co/software-mansion/react-native-executorch-whisper-small/resolve/v0.10.0/mlx/whisper_small_mlx_int8.pte' }}
   TINY_URL: ${{ inputs.tiny_url || 'https://huggingface.co/software-mansion/react-native-executorch-whisper-tiny/resolve/v0.10.0/mlx/whisper_tiny_mlx_bf16.pte' }}
   FUSED_MODEL: ${{ inputs.export_fused_model || 'openai/whisper-tiny' }}
+  # 5 exécutions : la 1re paie la compilation des noyaux Metal, les suivantes donnent le régime établi.
+  RUN: ./cmake-out/executor_runner --num_executions 5
 
 jobs:
   measure:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: upstream-v1.4.1
+            repo: AxelNoun/executorch-fork
+            ref: audit/22513-macos
+          - label: sm-fork-1.4.1
+            repo: software-mansion-labs/executorch
+            ref: "@ms/separate-backends-1.4.1"
+    name: ${{ matrix.label }}
     runs-on: ${{ inputs.runner || 'macos-26' }}
     timeout-minutes: 180
     defaults:
       run:
         working-directory: executorch
     steps:
-      # CMakeLists.txt:456 exige un répertoire nommé exactement `executorch` (issue #6475) ;
-      # le fork s'appelle executorch-fork.
+      # Le matériel d'audit vient toujours de cette branche ; le runtime mesuré vient de la matrice.
       - uses: actions/checkout@v4
         with:
+          path: audit
+      # CMakeLists.txt:456 exige un répertoire nommé exactement `executorch` (issue #6475).
+      - uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.repo }}
+          ref: ${{ matrix.ref }}
           submodules: recursive
           path: executorch
 
@@ -61,14 +75,13 @@ jobs:
         run: |
           set -eux
           for p in P1-executor-runner-phys-footprint.diff P3-log-constants-copied-by-mlx.diff; do
-            if git apply --check "audit_22513/patches/$p"; then
-              git apply "audit_22513/patches/$p"
-            elif git apply --check -R "audit_22513/patches/$p"; then
-              echo "$p déjà appliqué sur cette branche"
+            if git apply --check "../audit/audit_22513/patches/$p"; then
+              git apply "../audit/audit_22513/patches/$p"
             else
-              echo "$p ne s'applique pas sur cette révision"; exit 1
+              echo "::warning::$p ne s'applique pas sur ${{ matrix.repo }}@${{ matrix.ref }} ; /usr/bin/time -l reste disponible"
             fi
           done
+          git log --oneline -1
 
       - name: Machine et device Metal
         run: |
@@ -85,17 +98,16 @@ jobs:
           set -eux
           python install_executorch.py
 
-      # ET_MIN_LOG_LEVEL=Info : le preset mlx-release met Error, ce qui compilerait les
-      # ET_LOG(Info) de P1/P3 hors du binaire.
+      # ET_MIN_LOG_LEVEL=Info : le preset mlx-release met Error, ce qui compilerait les ET_LOG(Info)
+      # de P1/P3 hors du binaire. executor_runner exige EVALUE_UTIL et RUNNER_UTIL (default.cmake:364-366).
       - name: Build executor_runner avec le délégué MLX
         run: |
           set -eux
-          # executor_runner exige EVALUE_UTIL et RUNNER_UTIL (tools/cmake/preset/default.cmake:364-366),
-          # que le preset mlx n'active pas.
-          cmake --preset mlx-release -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=ON             -DEXECUTORCH_BUILD_EXTENSION_EVALUE_UTIL=ON -DEXECUTORCH_BUILD_EXTENSION_RUNNER_UTIL=ON             -DET_MIN_LOG_LEVEL=Info
+          cmake --preset mlx-release -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=ON \
+            -DEXECUTORCH_BUILD_EXTENSION_EVALUE_UTIL=ON -DEXECUTORCH_BUILD_EXTENSION_RUNNER_UTIL=ON \
+            -DET_MIN_LOG_LEVEL=Info
           cmake --build cmake-out --target executor_runner -j"$(sysctl -n hw.ncpu)"
           ls -la cmake-out/executor_runner
-          ls cmake-out/backends/mlx/mlx/mlx/backend/metal/kernels/mlx.metallib
 
       - name: Télécharger les .pte du rapporteur
         run: |
@@ -104,43 +116,39 @@ jobs:
           curl -sL -o tiny.pte "$TINY_URL"
           shasum -a 256 small.pte tiny.pte
 
-      # E1 : RSS vs footprint sur le harnais de l'issue. /usr/bin/time -l imprime
-      # « maximum resident set size » et « peak memory footprint » ; P1 ajoute
-      # lifetime_max_phys_footprint après load_method et après la boucle.
-      - name: E1 — encode et decode, RSS vs footprint
+      # E1 : RSS vs footprint sur le harnais de l'issue. /usr/bin/time -l imprime « maximum
+      # resident set size » et « peak memory footprint » ; P1 ajoute lifetime_max_phys_footprint
+      # après load_method et après la boucle. `| tee` absorbe l'échec d'une exécution (le small
+      # int8 ne tourne pas sur upstream), la sortie le montre.
+      - name: E1 — fichiers du rapporteur, RSS vs footprint
         run: |
-          set -eux
+          set -ux
           for m in encode decode; do
-            /usr/bin/time -l ./cmake-out/executor_runner --model_path small.pte --method_name "$m" --num_executions 5 2>&1 | tee "e1_small_$m.txt"
+            /usr/bin/time -l $RUN --model_path small.pte --method_name "$m" 2>&1 | tee "e1_small_$m.txt"
+            /usr/bin/time -l $RUN --model_path tiny.pte  --method_name "$m" 2>&1 | tee "e1_tiny_$m.txt"
           done
-          /usr/bin/time -l ./cmake-out/executor_runner --model_path tiny.pte --method_name encode --num_executions 5 2>&1 | tee e1_tiny_encode.txt
 
-      # E6 : seuils iPhone ('p' : 20 dispatches) émulés ; attendu : inchangé (la règle de
-      # taille domine pour ce graphe).
-      - name: E6 — MLX_MAX_OPS_PER_BUFFER=20
+      # E6 : seuils iPhone ('p' : 20 dispatches) émulés. E7 : fenêtre réduite par la règle de taille.
+      - name: E6 / E7 — MLX_MAX_OPS_PER_BUFFER=20, MLX_MAX_MB_PER_BUFFER=10 (fichiers du rapporteur)
         run: |
-          MLX_MAX_OPS_PER_BUFFER=20 /usr/bin/time -l ./cmake-out/executor_runner --model_path small.pte --method_name encode --num_executions 5 2>&1 | tee e6_small_encode.txt
+          set -ux
+          for f in small tiny; do
+            MLX_MAX_OPS_PER_BUFFER=20 /usr/bin/time -l $RUN --model_path $f.pte --method_name encode 2>&1 | tee "e6_${f}_encode.txt"
+            MLX_MAX_MB_PER_BUFFER=10  /usr/bin/time -l $RUN --model_path $f.pte --method_name encode 2>&1 | tee "e7_${f}_encode.txt"
+          done
 
-      # E7 : fenêtre réduite par la règle de taille ; attendu : inchangé sur le graphe
-      # non fusionné (chaque op de scores est déjà seule), forte baisse sur le fusionné.
-      - name: E7 — MLX_MAX_MB_PER_BUFFER=10
-        run: |
-          MLX_MAX_MB_PER_BUFFER=10 /usr/bin/time -l ./cmake-out/executor_runner --model_path small.pte --method_name encode --num_executions 5 2>&1 | tee e7_small_encode.txt
-          MLX_MAX_MB_PER_BUFFER=10 /usr/bin/time -l ./cmake-out/executor_runner --model_path tiny.pte --method_name encode --num_executions 5 2>&1 | tee e7_tiny_encode.txt
-
-      # E8 : les deux loaders sur le même fichier. executor_runner = FileDataLoader
-      # (déjà couvert par les logs P3 ci-dessus) ; executorch.runtime = MmapDataLoader
+      # E8 : le second loader. executor_runner = FileDataLoader ; executorch.runtime = MmapDataLoader
       # + mlock ignore errors (extension/pybindings/pybindings.cpp:190-191).
       - name: E8 — mmap+mlock via les pybindings
         continue-on-error: true
         run: |
-          set -eux
-          python audit_22513/ci/e8_mmap_runtime.py small.pte encode 2>&1 | tee e8_small_encode_mmap.txt
-          python audit_22513/ci/e8_mmap_runtime.py tiny.pte encode 2>&1 | tee e8_tiny_encode_mmap.txt
+          set -ux
+          python ../audit/audit_22513/ci/e8_mmap_runtime.py small.pte encode 2>&1 | tee e8_small_encode_mmap.txt
+          python ../audit/audit_22513/ci/e8_mmap_runtime.py tiny.pte encode 2>&1 | tee e8_tiny_encode_mmap.txt
 
-      # E3 côté macOS : export fusionné par le pipeline du dépôt (SdpaNode) et comparaison
+      # E3 côté macOS : export fusionné par le pipeline du dépôt (SdpaNode) pour la comparaison
       # avec le fichier non fusionné de même taille. openai/whisper-* ne demande pas de token.
-      - name: E3 — export fusionné avec export_whisper.py
+      - name: E3 — export fusionné avec export_whisper.py (tiny)
         if: env.FUSED_MODEL != ''
         continue-on-error: true
         run: |
@@ -151,28 +159,44 @@ jobs:
           python -m executorch.backends.mlx.examples.whisper.export_whisper \
             --model-id "$FUSED_MODEL" --output-dir /tmp/fused --dtype bf16
           ls -la /tmp/fused
-          /usr/bin/time -l ./cmake-out/executor_runner --model_path /tmp/fused/encoder.pte --num_executions 5 2>&1 | tee e3_fused_encoder.txt
-          MLX_MAX_MB_PER_BUFFER=10 /usr/bin/time -l ./cmake-out/executor_runner --model_path /tmp/fused/encoder.pte --num_executions 5 2>&1 | tee e7_fused_encoder.txt
-          MLX_MAX_OPS_PER_BUFFER=20 /usr/bin/time -l ./cmake-out/executor_runner --model_path /tmp/fused/encoder.pte --num_executions 5 2>&1 | tee e6_fused_encoder.txt
-          # comptage des nœuds d'attention (E2 côté runner) ; non bloquant si l'inspecteur manque des fichiers générés
           set +e
+          /usr/bin/time -l $RUN --model_path /tmp/fused/encoder.pte 2>&1 | tee e3_fused_encoder.txt
+          MLX_MAX_MB_PER_BUFFER=10  /usr/bin/time -l $RUN --model_path /tmp/fused/encoder.pte 2>&1 | tee e7_fused_encoder.txt
+          MLX_MAX_OPS_PER_BUFFER=20 /usr/bin/time -l $RUN --model_path /tmp/fused/encoder.pte 2>&1 | tee e6_fused_encoder.txt
           python -m executorch.backends.mlx.pte_inspector /tmp/fused/encoder.pte --mlx-instructions > e3_fused_encoder.instr.txt 2> e3_inspector.err
           python -m executorch.backends.mlx.pte_inspector tiny.pte --mlx-instructions > e3_tiny_reporter.instr.txt 2>> e3_inspector.err
-          echo "fused encoder: SdpaNode=$(grep -c SdpaNode e3_fused_encoder.instr.txt) SoftmaxNode=$(grep -c SoftmaxNode e3_fused_encoder.instr.txt)" | tee e2_counts.txt
+          echo "fused tiny encoder: SdpaNode=$(grep -c SdpaNode e3_fused_encoder.instr.txt) SoftmaxNode=$(grep -c SoftmaxNode e3_fused_encoder.instr.txt)" | tee e2_counts.txt
           echo "reporter tiny (2 delegates): SdpaNode=$(grep -c SdpaNode e3_tiny_reporter.instr.txt) SoftmaxNode=$(grep -c SoftmaxNode e3_tiny_reporter.instr.txt)" | tee -a e2_counts.txt
           tail -3 e3_inspector.err || true
-          set -e
+
+      # E3-bis, taille small : exports de substitution (config whisper-small, poids aléatoires,
+      # pipeline du dépôt) — `none` = défaut transformers = SDPA fusionné ; `eager` = attention
+      # matérialisée (3 tenseurs de scores par couche, HF ; le rapporteur en a 4 avec ses casts fp32).
+      # C'est la taille où le throttle MAX_ACTIVE_TASKS peut s'engager (12 couches, 12 têtes).
+      - name: E3-bis — whisper-small de substitution, fusionné vs eager, E1/E6/E7
+        continue-on-error: true
+        run: |
+          set -ux
+          for v in none eager; do
+            python ../audit/audit_22513/scripts/exp_41_lower.py $v 12 bf16 /tmp/sub 2>&1 | grep -v "Warning\|warn\|W0" | tail -4
+            f=/tmp/sub/encoder_${v}_bf16_L12.pte
+            ls -la "$f"
+            /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e1_sub_small_${v}.txt"
+            MLX_MAX_OPS_PER_BUFFER=20 /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e6_sub_small_${v}.txt"
+            MLX_MAX_MB_PER_BUFFER=10  /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e7_sub_small_${v}.txt"
+            MLX_MAX_MB_PER_BUFFER=2   /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e7b_sub_small_${v}.txt"
+          done
 
       # E9 : contrainte d'alignement (pointeur) et de longueur de newBufferWithBytesNoCopy.
       - name: E9 — newBufferWithBytesNoCopy
         run: |
           set -eux
-          clang++ -std=c++17 -ObjC++ -fobjc-arc -framework Metal -framework Foundation audit_22513/ci/e9_nocopy.mm -o e9
+          clang++ -std=c++17 -ObjC++ -fobjc-arc -framework Metal -framework Foundation ../audit/audit_22513/ci/e9_nocopy.mm -o e9
           ./e9 2>&1 | tee e9.txt
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: audit-22513-macos-${{ inputs.runner || 'macos-26' }}-${{ github.run_number }}
+          name: audit-22513-${{ matrix.label }}-${{ github.run_number }}
           path: |
             executorch/e*.txt
