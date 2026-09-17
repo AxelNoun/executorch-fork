@@ -42,10 +42,16 @@ jobs:
   measure:
     runs-on: ${{ inputs.runner || 'macos-26' }}
     timeout-minutes: 180
+    defaults:
+      run:
+        working-directory: executorch
     steps:
+      # CMakeLists.txt:456 exige un répertoire nommé exactement `executorch` (issue #6475) ;
+      # le fork s'appelle executorch-fork.
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          path: executorch
 
       - uses: actions/setup-python@v5
         with:
@@ -167,4 +173,4 @@ jobs:
         with:
           name: audit-22513-macos-${{ inputs.runner || 'macos-26' }}-${{ github.run_number }}
           path: |
-            e*.txt
+            executorch/e*.txt
