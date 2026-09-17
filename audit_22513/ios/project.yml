@@ -1,0 +1,43 @@
+# Spécification XcodeGen (https://github.com/yonaskolb/XcodeGen) du harnais MemProbe.
+# `xcodegen generate` produit MemProbe.xcodeproj ; construit par .github/workflows/audit-22513-ios-ipa.yml
+# en .ipa non signé, à signer/installer depuis Windows avec Sideloadly (README-ios.md).
+name: MemProbe
+options:
+  bundleIdPrefix: org.audit22513
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+packages:
+  executorch:
+    url: https://github.com/pytorch/executorch.git
+    branch: swiftpm-1.6.0.20260917   # nightly contenant backend_mlx + metallibs iOS (#22203)
+targets:
+  MemProbe:
+    type: application
+    platform: iOS
+    sources:
+      - path: MemProbe
+      - path: Resources          # .pte copiés à la racine du bundle (Bundle.main.path(forResource:ofType:))
+        buildPhase: resources
+    dependencies:
+      - package: executorch
+        product: executorch
+      - package: executorch
+        product: backend_mlx
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: org.audit22513.memprobe
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_CFBundleDisplayName: MemProbe
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_VERSION: "5.9"
+        # Enregistrement des backends/kernels au démarrage (docs/source/using-executorch-ios.md).
+        OTHER_LDFLAGS: -all_load
+        # Non signé : Sideloadly re-signe avec l'Apple ID de l'utilisateur.
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGNING_ALLOWED: "NO"
+        CODE_SIGNING_REQUIRED: "NO"
+        CODE_SIGN_IDENTITY: ""
+        DEVELOPMENT_TEAM: ""

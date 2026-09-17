@@ -174,6 +174,7 @@ struct ContentView: View {
       for c in allCases {
         let r = runCase(c, iterations: 5, memoryLimitMb: memLim, cacheLimitMb: cacheLim)
         print(r)          // console Xcode
+        NSLog("MemProbe %@", r)   // journal système : idevicesyslog | grep MemProbe
         text += r + "\n"
         DispatchQueue.main.async { log += r + "\n" }
       }
