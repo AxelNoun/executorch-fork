@@ -218,6 +218,33 @@ jobs:
             done
           done
 
+      # Exports pour le harnais iPhone (audit_22513/ios) : entrée fp32 (cast bf16 dans le graphe,
+      # comme le fichier du rapporteur), tiny et small, fusionné (none) et eager. Artefact device-ptes.
+      - name: Exports pour l'iPhone (entrée fp32)
+        if: matrix.label == 'upstream-v1.4.1'
+        continue-on-error: true
+        run: |
+          set -ux
+          mkdir -p /tmp/device
+          for cfg in "tiny 4" "small 12"; do
+            set -- $cfg
+            for v in none eager; do
+              python ../audit/audit_22513/scripts/exp_41_lower.py $v $2 bf16 /tmp/device --config $1 --fp32-input 2>&1 | grep -v "Warning\|warn\|W0" | tail -2
+            done
+          done
+          ls -la /tmp/device
+          # contrôle : mêmes pics que les variantes à entrée bf16 (E3-bis), à un cast près
+          for f in /tmp/device/*.pte; do
+            /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e3_device_$(basename "$f" .pte).txt"
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.label == 'upstream-v1.4.1'
+        with:
+          name: device-ptes-${{ github.run_number }}
+          path: /tmp/device/*.pte
+          if-no-files-found: warn
+
       # E9 : contrainte d'alignement (pointeur) et de longueur de newBufferWithBytesNoCopy.
       - name: E9 — newBufferWithBytesNoCopy
         run: |
