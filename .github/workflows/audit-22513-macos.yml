@@ -14,6 +14,10 @@
 name: audit-22513-macos
 
 on:
+  # push : déclenche sans passer par la branche par défaut du fork (workflow_dispatch
+  # exige le fichier sur main). Les inputs sont vides sur un push : replis dans env.
+  push:
+    branches: ["audit/22513-*"]
   workflow_dispatch:
     inputs:
       pte_url:
@@ -29,9 +33,14 @@ on:
         description: "macos-26 (standard, gratuit) ou macos-26-xlarge"
         default: "macos-26"
 
+env:
+  PTE_URL: ${{ inputs.pte_url || 'https://huggingface.co/software-mansion/react-native-executorch-whisper-small/resolve/v0.10.0/mlx/whisper_small_mlx_int8.pte' }}
+  TINY_URL: ${{ inputs.tiny_url || 'https://huggingface.co/software-mansion/react-native-executorch-whisper-tiny/resolve/v0.10.0/mlx/whisper_tiny_mlx_bf16.pte' }}
+  FUSED_MODEL: ${{ inputs.export_fused_model || 'openai/whisper-tiny' }}
+
 jobs:
   measure:
-    runs-on: ${{ inputs.runner }}
+    runs-on: ${{ inputs.runner || 'macos-26' }}
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
@@ -83,8 +92,8 @@ jobs:
       - name: Télécharger les .pte du rapporteur
         run: |
           set -eux
-          curl -sL -o small.pte "${{ inputs.pte_url }}"
-          curl -sL -o tiny.pte "${{ inputs.tiny_url }}"
+          curl -sL -o small.pte "$PTE_URL"
+          curl -sL -o tiny.pte "$TINY_URL"
           shasum -a 256 small.pte tiny.pte
 
       # E1 : RSS vs footprint sur le harnais de l'issue. /usr/bin/time -l imprime
@@ -124,7 +133,7 @@ jobs:
       # E3 côté macOS : export fusionné par le pipeline du dépôt (SdpaNode) et comparaison
       # avec le fichier non fusionné de même taille. openai/whisper-* ne demande pas de token.
       - name: E3 — export fusionné avec export_whisper.py
-        if: inputs.export_fused_model != ''
+        if: env.FUSED_MODEL != ''
         continue-on-error: true
         run: |
           set -eux
@@ -132,7 +141,7 @@ jobs:
           pip install -U "huggingface_hub[cli]<1.0"   # comme test-mlx-whisper dans mlx.yml
           pip install transformers soundfile datasets librosa
           python -m executorch.backends.mlx.examples.whisper.export_whisper \
-            --model-id "${{ inputs.export_fused_model }}" --output-dir /tmp/fused --dtype bf16
+            --model-id "$FUSED_MODEL" --output-dir /tmp/fused --dtype bf16
           ls -la /tmp/fused
           /usr/bin/time -l ./cmake-out/executor_runner --model_path /tmp/fused/encoder.pte --num_executions 5 2>&1 | tee e3_fused_encoder.txt
           MLX_MAX_MB_PER_BUFFER=10 /usr/bin/time -l ./cmake-out/executor_runner --model_path /tmp/fused/encoder.pte --num_executions 5 2>&1 | tee e7_fused_encoder.txt
@@ -156,6 +165,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: audit-22513-macos-${{ inputs.runner }}
+          name: audit-22513-macos-${{ inputs.runner || 'macos-26' }}-${{ github.run_number }}
           path: |
             e*.txt
