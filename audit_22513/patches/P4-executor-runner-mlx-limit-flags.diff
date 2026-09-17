@@ -1,0 +1,61 @@
+diff --git a/examples/portable/executor_runner/executor_runner.cpp b/examples/portable/executor_runner/executor_runner.cpp
+index fe6acb69b7..48f81a8da0 100644
+--- a/examples/portable/executor_runner/executor_runner.cpp
++++ b/examples/portable/executor_runner/executor_runner.cpp
+@@ -38,6 +38,8 @@
+ #include <executorch/runtime/core/device_memory_buffer.h>
+ #include <executorch/runtime/core/event_tracer.h>
+ #include <executorch/runtime/executor/method.h>
++#include <executorch/runtime/backend/backend_options_map.h>
++#include <executorch/runtime/backend/options.h>
+ #include <executorch/runtime/executor/program.h>
+ #include <executorch/runtime/platform/log.h>
+ #include <executorch/runtime/platform/platform.h>
+@@ -82,6 +84,16 @@ DEFINE_string(
+     "summary",
+     "Output printing mode: 'none' to suppress, 'summary' for first/last 100 elements, 'all' for everything.");
+ DEFINE_uint32(num_executions, 1, "Number of times to run the model.");
++DEFINE_int32(
++    mlx_memory_limit_mb,
++    -1,
++    "MLX backend: memory_limit_mb load-time option (MiB). -1 leaves the MLX "
++    "default (1.5x the recommended working set size).");
++DEFINE_int32(
++    mlx_cache_limit_mb,
++    -1,
++    "MLX backend: cache_limit_mb load-time option (MiB). -1 leaves the MLX "
++    "default (cache limit = memory limit); 0 disables the buffer cache.");
+ DEFINE_string(
+     method_name,
+     "",
+@@ -608,11 +620,29 @@ int main(int argc, char** argv) {
+   // be used by a single thread at at time, but it can be reused.
+   //
+   EventTraceManager tracer;
++  // Load-time options routed to the MLX delegate's init() as runtime specs
++  // (backends/mlx/runtime/backend_options.h). The map does not own the
++  // options, so both objects outlive the method.
++  executorch::runtime::BackendOptions<2> mlx_options;
++  executorch::runtime::LoadBackendOptionsMap backend_options;
++  if (FLAGS_mlx_memory_limit_mb >= 0) {
++    mlx_options.set_option("memory_limit_mb", FLAGS_mlx_memory_limit_mb);
++  }
++  if (FLAGS_mlx_cache_limit_mb >= 0) {
++    mlx_options.set_option("cache_limit_mb", FLAGS_mlx_cache_limit_mb);
++  }
++  if (mlx_options.view().size() > 0) {
++    ET_CHECK_MSG(
++        backend_options.set_options("MLXBackend", mlx_options.view()) ==
++            Error::Ok,
++        "Failed to set MLX backend options");
++  }
+   Result<Method> method = program->load_method(
+       method_name,
+       &memory_manager,
+       tracer.get_event_tracer(),
+-      ptd_data_map.get());
++      ptd_data_map.get(),
++      &backend_options);
+   const et_timestamp_t after_load = executorch::runtime::pal_current_ticks();
+   ET_CHECK_MSG(
+       method.ok(),

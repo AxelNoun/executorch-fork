@@ -71,16 +71,27 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Patches d'instrumentation (P1 footprint, P3 constantes copiées)
+      # P1/P3 : instrumentation. P2 : options memory_limit_mb / cache_limit_mb (variante
+      # P2-smfork pour le MLXBackend.cpp du fork). P4 : flags --mlx_memory_limit_mb /
+      # --mlx_cache_limit_mb d'executor_runner qui les transmettent (E4).
+      - name: Patches (P1, P3, P2 ou P2-smfork, P4)
         run: |
           set -eux
-          for p in P1-executor-runner-phys-footprint.diff P3-log-constants-copied-by-mlx.diff; do
+          for p in P1-executor-runner-phys-footprint.diff P3-log-constants-copied-by-mlx.diff P4-executor-runner-mlx-limit-flags.diff; do
             if git apply --check "../audit/audit_22513/patches/$p"; then
               git apply "../audit/audit_22513/patches/$p"
             else
-              echo "::warning::$p ne s'applique pas sur ${{ matrix.repo }}@${{ matrix.ref }} ; /usr/bin/time -l reste disponible"
+              echo "::warning::$p ne s'applique pas sur ${{ matrix.repo }}@${{ matrix.ref }}"
             fi
           done
+          if git apply --check ../audit/audit_22513/patches/P2-mlx-memory-and-cache-limit-options.diff; then
+            git apply ../audit/audit_22513/patches/P2-mlx-memory-and-cache-limit-options.diff
+          elif git apply --check ../audit/audit_22513/patches/P2-smfork-mlx-memory-and-cache-limit-options.diff; then
+            git apply ../audit/audit_22513/patches/P2-smfork-mlx-memory-and-cache-limit-options.diff
+          else
+            echo "::warning::P2 ne s'applique pas sur ${{ matrix.repo }}@${{ matrix.ref }}"
+          fi
+          git status --short
           git log --oneline -1
 
       - name: Machine et device Metal
@@ -114,7 +125,9 @@ jobs:
           set -eux
           curl -sL -o small.pte "$PTE_URL"
           curl -sL -o tiny.pte "$TINY_URL"
-          shasum -a 256 small.pte tiny.pte
+          # tiny int8 (public) : sonde l'écart bf16/int8 des deltas de l'issue (fork seulement)
+          curl -sL -o tiny_int8.pte "https://huggingface.co/software-mansion/react-native-executorch-whisper-tiny/resolve/v0.10.0/mlx/whisper_tiny_mlx_int8.pte"
+          shasum -a 256 small.pte tiny.pte tiny_int8.pte
 
       # E1 : RSS vs footprint sur le harnais de l'issue. /usr/bin/time -l imprime « maximum
       # resident set size » et « peak memory footprint » ; P1 ajoute lifetime_max_phys_footprint
@@ -126,6 +139,7 @@ jobs:
           for m in encode decode; do
             /usr/bin/time -l $RUN --model_path small.pte --method_name "$m" 2>&1 | tee "e1_small_$m.txt"
             /usr/bin/time -l $RUN --model_path tiny.pte  --method_name "$m" 2>&1 | tee "e1_tiny_$m.txt"
+            /usr/bin/time -l $RUN --model_path tiny_int8.pte --method_name "$m" 2>&1 | tee "e10_tiny_int8_$m.txt"
           done
 
       # E6 : seuils iPhone ('p' : 20 dispatches) émulés. E7 : fenêtre réduite par la règle de taille.
@@ -136,6 +150,20 @@ jobs:
             MLX_MAX_OPS_PER_BUFFER=20 /usr/bin/time -l $RUN --model_path $f.pte --method_name encode 2>&1 | tee "e6_${f}_encode.txt"
             MLX_MAX_MB_PER_BUFFER=10  /usr/bin/time -l $RUN --model_path $f.pte --method_name encode 2>&1 | tee "e7_${f}_encode.txt"
           done
+
+      # E4 : borne continue de pic (P2 via P4). Le limite compte les constantes enveloppées :
+      # elle doit dépasser « après load_method » (small int8 ≈ 105 Mio, sub small 176, tiny 24).
+      - name: E4 — memory_limit_mb (P2 + P4)
+        run: |
+          set -ux
+          for lim in 250 400 600; do
+            /usr/bin/time -l $RUN --model_path small.pte --method_name encode --mlx_memory_limit_mb $lim 2>&1 | tee "e4_small_encode_lim${lim}.txt"
+          done
+          for lim in 100 200 400; do
+            /usr/bin/time -l $RUN --model_path tiny.pte --method_name encode --mlx_memory_limit_mb $lim 2>&1 | tee "e4_tiny_encode_lim${lim}.txt"
+          done
+          # cache désactivé : résident après la boucle sans cache (le pic est inchangé par construction)
+          /usr/bin/time -l $RUN --model_path tiny.pte --method_name encode --mlx_cache_limit_mb 0 2>&1 | tee "e4_tiny_encode_cache0.txt"
 
       # E8 : le second loader. executor_runner = FileDataLoader ; executorch.runtime = MmapDataLoader
       # + mlock ignore errors (extension/pybindings/pybindings.cpp:190-191).
@@ -185,6 +213,9 @@ jobs:
             MLX_MAX_OPS_PER_BUFFER=20 /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e6_sub_small_${v}.txt"
             MLX_MAX_MB_PER_BUFFER=10  /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e7_sub_small_${v}.txt"
             MLX_MAX_MB_PER_BUFFER=2   /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e7b_sub_small_${v}.txt"
+            for lim in 300 450; do
+              /usr/bin/time -l $RUN --model_path "$f" --mlx_memory_limit_mb $lim 2>&1 | tee "e4_sub_small_${v}_lim${lim}.txt"
+            done
           done
 
       # E9 : contrainte d'alignement (pointeur) et de longueur de newBufferWithBytesNoCopy.
