@@ -241,6 +241,50 @@ jobs:
             /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e3_device_$(basename "$f" .pte).txt"
           done
 
+      # E11 — décomposition builder × fusion à graphe constant, et contre-pression sur un export
+      # qui recycle les slots (§ 3.5). Les deux tiny de substitution ont la même architecture que le
+      # tiny du rapporteur (whisper-tiny : 4 couches, d=384, 6 têtes) mais sortent du builder courant.
+      - name: E11 — contre-pression sur les substituts tiny, et compléments sur les fichiers du rapporteur
+        if: matrix.label == 'upstream-v1.4.1'
+        continue-on-error: true
+        run: |
+          set -ux
+          for v in none eager; do
+            f=/tmp/device/encoder_${v}_bf16_L4_tiny_fp32in.pte
+            MLX_MAX_MB_PER_BUFFER=10 /usr/bin/time -l $RUN --model_path "$f" 2>&1 | tee "e11_dev_tiny_${v}_mb10.txt"
+            for lim in 60 100; do
+              /usr/bin/time -l $RUN --model_path "$f" --mlx_memory_limit_mb $lim 2>&1 | tee "e11_dev_tiny_${v}_lim${lim}.txt"
+            done
+            # nombre de tenseurs de scores par couche : tranche le « 3 (HF eager) contre 4 (rapporteur) »
+            python -m executorch.backends.mlx.pte_inspector "$f" --mlx-instructions > "e11_dev_tiny_${v}.instr.txt" 2>/dev/null || true
+            grep -c "Temp tensors" "e11_dev_tiny_${v}.instr.txt" || true
+            grep "Temp tensors" "e11_dev_tiny_${v}.instr.txt" || true
+          done
+          python -m executorch.backends.mlx.pte_inspector /tmp/device/encoder_eager_bf16_L12_fp32in.pte --mlx-instructions > e11_dev_small_eager.instr.txt 2>/dev/null || true
+          grep "Temp tensors" e11_dev_small_eager.instr.txt || true
+
+      # Compléments demandés par la relecture : MLX_MAX_MB_PER_BUFFER=2 sur les fichiers du
+      # rapporteur (jamais testé), limite inférieure aux poids chargés (decode small : 212 Mio),
+      # et isolation de la borne de cache du fork (ET_MLX_CACHE_LIMIT_MB, § 1.11).
+      - name: E12 — compléments sur les fichiers du rapporteur
+        continue-on-error: true
+        run: |
+          set -ux
+          for f in small tiny; do
+            MLX_MAX_MB_PER_BUFFER=2 /usr/bin/time -l $RUN --model_path $f.pte --method_name encode 2>&1 | tee "e12_${f}_encode_mb2.txt"
+          done
+          /usr/bin/time -l $RUN --model_path small.pte --method_name decode --mlx_memory_limit_mb 250 2>&1 | tee e12_small_decode_lim250.txt
+          for c in 0 4096; do
+            ET_MLX_CACHE_LIMIT_MB=$c /usr/bin/time -l $RUN --model_path small.pte --method_name encode 2>&1 | tee "e12_small_encode_cacheenv${c}.txt"
+          done
+
+      - name: E0 — machine archivée
+        if: always()
+        run: |
+          set -ux
+          { sw_vers; uname -a; sysctl hw.memsize hw.ncpu hw.pagesize hw.model machdep.cpu.brand_string;             system_profiler SPDisplaysDataType | head -20; } > e0_machine.txt 2>&1
+          cat e0_machine.txt
+
       - uses: actions/upload-artifact@v4
         if: matrix.label == 'upstream-v1.4.1'
         with:
