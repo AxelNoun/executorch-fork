@@ -16,14 +16,18 @@ Compagnon de `../AUDIT_22513.md`. Tout a été produit sous Windows 11, CPU seul
 | | `seg_align.py` | alignement (16 Kio / 4 Kio) des segments named-data d'un `.pte` |
 | | `exp_42_sizes.py` | 4.2.1 — taille de chaque intermédiaire (shape, dtype, octets) de l'encodeur HF, sdpa vs eager |
 | | `sim_cbuf.py` | 4.2 — simulation du découpage en command buffers MLX et de la fenêtre `MAX_ACTIVE_TASKS` |
-| `patches/` | `P1-…`, `P2-…`, `P3-…`, `P4-…`, `P2-smfork-…` | diffs unifiés contre `origin/main` (`026ca3fff3`) ; `git apply --check` passe aussi sur `v1.4.1` ; `P2-smfork` = P2 rebasé sur le `MLXBackend.cpp` du fork SM ; **tous compilés et exécutés sur les runners** (runs 4 et 5) |
+| `patches/` | `P1-…`, `P2-…`, `P3-…`, `P4-…`, `P2-smfork-…` | diffs unifiés contre `origin/main` au 2026-09-15 (`026ca3fff3`) ; `git apply --check` passe aussi sur `v1.4.1` ; `P2-smfork` = P2 rebasé sur le `MLXBackend.cpp` du fork SM ; **tous compilés et exécutés sur les runners** (runs 4 et 5). P1, P2 et P4 **ne s'appliquent plus** sur `main` depuis `#22932` |
+| | `P1-main-…`, `P6-main-…` | les deux seules propositions encore ouvertes (§ 7.2) : compteurs mémoire dans `executor_runner`, et flags `--mlx_eval_threshold_bytes` / `--mlx_clear_cache_interval`. Vérifiés sur `main` à `c77d0ee6fe` |
+| `drafts/` | `pr-descriptions.md` | brouillons de descriptions de PR |
 | `data/` | `whisper_*_mlx_*.instr.txt` | sortie brute de `pte_inspector --mlx-instructions` sur les deux fichiers du rapporteur (table de noms ET@1.4.1 : op_type 122 = `QuantizedMatmulNode` dans le schéma du fork, affiché `ScatterAddNode`) |
 | | `encoder_{none,eager}_bf16_L12.instr.txt` | idem sur mes exports de substitution (défaut = sdpa, eager) |
 | | `hist_*.txt` | histogrammes correspondants |
-| | `sim_cbuf.txt` | sortie de `sim_cbuf.py` |
+| | `sim_cbuf.txt`, `sim_cbuf_v2.txt` | sorties de `sim_cbuf.py` ; `v2` ajoute la variante eager HF à trois tenseurs de scores (le `.txt` d'origine est conservé tel quel) |
+| | `schema_optype_122.txt` | diff des unions `OpNode` upstream v1.4.1 / fork SM : `CumMaxNode` inséré en 112, d'où l'op_type 122 lu `ScatterAddNode` |
+| | `openai_whisper_citations.txt` | numéros de ligne d'`openai/whisper@86098128` cités dans le rapport, vérifiés à ce commit (+ sha256 du fichier) |
 | | `hf_pte_sha256.txt` | empreintes des deux `.pte` téléchargés |
 | | `whisper_tiny_mlx_int8.instr.txt`, `hist_whisper_tiny_mlx_int8.txt` | idem pour le tiny int8 (5-6 slots temporaires, chaînes d'init : builder récent, contrairement au tiny bf16) |
-| | `run3-upstream-v1.4.1/`, `run4-*`, `run5-*` | artefacts bruts des runs GitHub Actions 35187550634, 35189553833 et 35212705210 (`e*.txt`, sorties `pte_inspector`) + `TABLE.md` produit par `ci/parse_artifacts.py` ; lus dans AUDIT_22513.md § 5 bis |
+| | `run3-upstream-v1.4.1/`, `run4-*`, `run5-*`, `run7-*`, `run9-*` | artefacts bruts des runs GitHub Actions 35187550634, 35189553833, 35212705210, 35217433664 et 37382291489 (`e*.txt`, sorties `pte_inspector`) + `TABLE.md` produit par `ci/parse_artifacts.py` ; lus dans AUDIT_22513.md § 5 bis. Les runs 7 et 9 portent la décomposition builder × fusion (§ 5 bis.9) et la contre-pression à builder constant (§ 5 bis.10) ; **le fork SM a changé de commit entre le run 5 et le run 9** |
 
 ## Recette (Windows, Git Bash)
 

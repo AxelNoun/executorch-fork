@@ -37,6 +37,16 @@ def layer_unfused():
         ("add_res2", [("y",T),("z2",T)], ("x_next",T), 2*T),
     ]
     return ops
+def layer_eager_hf():
+    """Variante `attn_implementation="eager"` de transformers : le softmax fait lui-même la montée en
+    fp32 (`softmax(..., dtype=float32)` → `_softmax` half_to_float), donc **trois** tenseurs de scores
+    par couche au lieu de quatre, et une seule mise à l'échelle (sur q). C'est le graphe des exports de
+    substitution mesurés en § 5 bis.2 ; le fichier du rapporteur a le cast fp32 explicite en plus."""
+    ops = [o for o in layer_unfused() if o[0] not in ("astype_qk32", "mul_k")]
+    i = [k for k, o in enumerate(ops) if o[0] == "addmm_qk"][0]
+    # le softmax consomme les scores bf16 et sort du fp32 (half_to_float)
+    ops[i + 1] = ("softmax_h2f", [("qk", S)], ("w32", S), 4 * S)
+    return ops
 def layer_fused():
     ops = [o for o in layer_unfused() if o[0] not in ("mul_q","mul_k","addmm_qk","astype_qk32","softmax","astype_w16","addmm_wv")]
     i = [k for k,o in enumerate(ops) if o[0]=="add_bv"][0]
@@ -64,3 +74,7 @@ for (mo, mm, dev) in ((20, 40, "phone 'p'"), (40, 40, "base/pro 'g'"), (50, 50, 
     simulate(12, layer_unfused, mo, mm, f"non fusionné {dev:18s}")
 for (mo, mm, dev) in ((20, 40, "phone 'p'"), (40, 40, "base/pro 'g'")):
     simulate(12, layer_fused, mo, mm, f"SDPA fusionné {dev:16s}")
+# Variante HF eager : c'est elle qu'il faut comparer aux 548 Mio d'activations mesurées (§ 5 bis.2),
+# les substituts étant exportés par transformers, pas par le code du rapporteur.
+for (mo, mm, dev) in ((40, 40, "runner (default 40/40)"), (20, 40, "phone 'p'")):
+    simulate(12, layer_eager_hf, mo, mm, f"eager HF {dev:21s}")
