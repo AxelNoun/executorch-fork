@@ -3,8 +3,9 @@ non fusionné base/pro 'g'      : 60 command buffers pour 12 couches ; volume al
 non fusionné max/ultra 's'/'d' : 49 command buffers pour 12 couches ; volume alloué total 4911 MB ; fenêtre de 11 cbufs max = 1177 MB ; médiane ops/cbuf=3
 SDPA fusionné phone 'p'       : 13 command buffers pour 12 couches ; volume alloué total 968 MB ; fenêtre de 11 cbufs max = 823 MB ; médiane ops/cbuf=20
 SDPA fusionné base/pro 'g'    : 12 command buffers pour 12 couches ; volume alloué total 968 MB ; fenêtre de 11 cbufs max = 887 MB ; médiane ops/cbuf=22
-eager HF runner (default 40/40): 48 command buffers pour 12 couches ; volume alloué total 3587 MB ; fenêtre de 11 cbufs max = 871 MB ; médiane ops/cbuf=9
-eager HF phone 'p'            : 48 command buffers pour 12 couches ; volume alloué total 3587 MB ; fenêtre de 11 cbufs max = 871 MB ; médiane ops/cbuf=9
+eager HF runner (default 40/40): 36 command buffers pour 12 couches ; volume alloué total 2912 MB ; fenêtre de 11 cbufs max = 945 MB ; médiane ops/cbuf=9
+eager HF phone 'p'            : 36 command buffers pour 12 couches ; volume alloué total 2912 MB ; fenêtre de 11 cbufs max = 945 MB ; médiane ops/cbuf=9
 
-# Produit par audit_22513/scripts/sim_cbuf.py (version du 2026-10-05, avec la variante layer_eager_hf).
-# Remplace sim_cbuf.txt, conservé tel quel : celui-ci n'avait pas la variante eager HF à trois tenseurs de scores.
+# Produit par audit_22513/scripts/sim_cbuf.py (version du 2026-10-06, variante layer_eager_hf calée sur le
+# dump run10-upstream-v1.4.1/e11_dev_small_eager.instr.txt:172-195 : deux tenseurs de scores bf16 par couche).
+# sim_cbuf.txt (2026-09-16) est conservé tel quel : il n'avait pas de variante eager HF.

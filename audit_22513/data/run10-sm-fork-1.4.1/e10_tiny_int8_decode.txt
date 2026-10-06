@@ -1,0 +1,60 @@
+I 00:00:00.004350 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.004404 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.004413 executorch:executor_runner.cpp:472] Resetting threadpool with num threads = 3
+I 00:00:00.004425 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.004466 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.004526 executorch:threadpool.cpp:66] Resetting threadpool to 3 threads.
+I 00:00:00.004713 executorch:executor_runner.cpp:614] Model file tiny_int8.pte is loaded.
+I 00:00:00.004721 executorch:executor_runner.cpp:624] Using method decode
+I 00:00:00.004726 executorch:executor_runner.cpp:698] Setting up CPU planned buffer 0, size 2511504.
+I 00:00:00.024151 executorch:MLXBackend.cpp:264] MLX Metal cache limit set to 256MB
+I 00:00:00.081550 executorch:MLXExecutor.h:848] MLX constants: 181 loaded, 0 copied by MLX (0 bytes resident twice)
+I 00:00:00.168464 executorch:executor_runner.cpp:428] [after load_method] rss 64.4 MiB, phys_footprint 58.9 MiB, lifetime_max_phys_footprint 58.9 MiB
+I 00:00:00.168477 executorch:executor_runner.cpp:789] Model loaded in 163.879291 ms.
+I 00:00:00.440591 executorch:executor_runner.cpp:951] Iteration 1 of 5: 270.662750 ms
+I 00:00:00.453350 executorch:executor_runner.cpp:951] Iteration 2 of 5: 12.422084 ms
+I 00:00:00.463539 executorch:executor_runner.cpp:951] Iteration 3 of 5: 9.777875 ms
+I 00:00:00.473305 executorch:executor_runner.cpp:951] Iteration 4 of 5: 9.583458 ms
+I 00:00:00.483384 executorch:executor_runner.cpp:951] Iteration 5 of 5: 9.925500 ms
+I 00:00:00.483400 executorch:executor_runner.cpp:960] Model executed successfully 5 time(s) in 312.371667 ms.
+I 00:00:00.483408 executorch:executor_runner.cpp:428] [after execute loop] rss 70.8 MiB, phys_footprint 75.8 MiB, lifetime_max_phys_footprint 75.8 MiB
+I 00:00:00.483411 executorch:executor_runner.cpp:965] 1 outputs: 
+OutputX 0: tensor(sizes=[1, 1, 51865], [
+  18.125, 19.5, 16.25, 13.4375, 13.0625, 15., 16., 17.375, 14., 17.375, 
+  14.5625, 16.625, 21.625, 18.625, 17.5, 14., 13.6875, 13.8125, 15.875, 13.9375, 
+  17.25, 14.125, 14.375, 12.625, 15.375, 13.8125, 15.875, 17.75, 16.625, 14.75, 
+  19.125, 12.625, 15.4375, 18.75, 15., 16.375, 16., 15.875, 17.25, 18.25, 
+  17.125, 14.125, 16.25, 17.875, 17.625, 18.25, 11.3125, 18.75, 15., 16.375, 
+  19.5, 15.9375, 15.8125, 14.1875, 19., 14.3125, 15.375, 13.625, 15.4375, 17., 
+  12.9375, 18.75, 10.875, 18., 18.375, 20.25, 17.375, 17.375, 15.625, 19.875, 
+  18., 21.75, 18.75, 18., 17.5, 20.25, 21.125, 21.375, 17.75, 19., 
+  15.25, 19.375, 19., 17.5, 18.625, 18.875, 19.375, 16.375, 17.125, 19.5, 
+  15.5625, 18.75, 13.5, 14.875, 13.5, 11., 14.875, 10.8125, 11.5, 11.3125, 
+  ...,
+  15.1875, 15.5625, 14.375, 14.375, 13.625, 15.125, 14.125, 15.0625, 14.75, 15.3125, 
+  14.4375, 14.8125, 14.3125, 15.1875, 14.875, 14.5625, 14.3125, 15.25, 14.0625, 14.8125, 
+  14.1875, 14.375, 13.0625, 13.4375, 14.8125, 15., 13.125, 13.625, 13.5, 14.125, 
+  13.25, 13.6875, 14.3125, 15.6875, 14.0625, 13.9375, 13.5625, 14.6875, 12.625, 14., 
+  13.1875, 14.5, 14.0625, 14.4375, 13.875, 15.6875, 13.8125, 13.75, 12.875, 15.375, 
+  13.6875, 13.9375, 12.6875, 13.3125, 11.5, 12.8125, 12.9375, 14.125, 12.9375, 13.8125, 
+  12.75, 13.8125, 12.75, 12.75, 12.9375, 13.8125, 13.125, 13.1875, 13.875, 14.4375, 
+  13.6875, 14.3125, 13.6875, 14.4375, 14.625, 14.375, 14.0625, 14.125, 12.9375, 13., 
+  12.375, 13.5, 12.4375, 13.75, 12.5625, 14.3125, 12.125, 12.9375, 13., 14.0625, 
+  12.5, 14.0625, 13.1875, 13.3125, 13.4375, 13.125, 12.375, 13.8125, 12.1875, 11.9375, 
+])
+        0.50 real         0.04 user         0.10 sys
+            74350592  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                4807  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  15  voluntary context switches
+                 345  involuntary context switches
+            79627648  peak memory footprint

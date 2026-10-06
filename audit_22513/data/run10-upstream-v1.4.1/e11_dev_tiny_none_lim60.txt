@@ -1,0 +1,59 @@
+I 00:00:00.004447 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.004514 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.004520 executorch:executor_runner.cpp:386] Resetting threadpool with num threads = 3
+I 00:00:00.004522 executorch:cpuinfo_utils.cpp:71] Reading file /sys/devices/soc0/image_version
+I 00:00:00.004562 executorch:cpuinfo_utils.cpp:87] Failed to open midr file /sys/devices/soc0/image_version
+I 00:00:00.004626 executorch:threadpool.cpp:66] Resetting threadpool to 3 threads.
+I 00:00:00.004723 executorch:executor_runner.cpp:521] Model file /tmp/device/encoder_none_bf16_L4_tiny_fp32in.pte is loaded.
+I 00:00:00.004730 executorch:executor_runner.cpp:531] Using method forward
+I 00:00:00.004732 executorch:executor_runner.cpp:605] Setting up CPU planned buffer 0, size 2112000.
+I 00:00:00.098462 executorch:MLXExecutor.h:848] MLX constants: 71 loaded, 0 copied by MLX (0 bytes resident twice)
+I 00:00:00.098504 executorch:executor_runner.cpp:342] [after load_method] rss 29.2 MiB, phys_footprint 21.5 MiB, lifetime_max_phys_footprint 21.5 MiB
+I 00:00:00.098509 executorch:executor_runner.cpp:693] Model loaded in 93.788750 ms.
+I 00:00:00.711133 executorch:executor_runner.cpp:849] Iteration 1 of 5: 612.072125 ms
+I 00:00:00.757643 executorch:executor_runner.cpp:849] Iteration 2 of 5: 46.352834 ms
+I 00:00:00.805390 executorch:executor_runner.cpp:849] Iteration 3 of 5: 47.605417 ms
+I 00:00:00.847058 executorch:executor_runner.cpp:849] Iteration 4 of 5: 41.593000 ms
+I 00:00:00.890097 executorch:executor_runner.cpp:849] Iteration 5 of 5: 42.899833 ms
+I 00:00:00.890140 executorch:executor_runner.cpp:858] Model executed successfully 5 time(s) in 790.523209 ms.
+I 00:00:00.890161 executorch:executor_runner.cpp:342] [after execute loop] rss 38.3 MiB, phys_footprint 82.5 MiB, lifetime_max_phys_footprint 82.5 MiB
+I 00:00:00.890166 executorch:executor_runner.cpp:863] 1 outputs: 
+OutputX 0: tensor(sizes=[1, 1500, 384], [
+  -0.539062, -1.00781, -0.386719, -0.976562, -1.55469, -0.800781, -0.164062, -0.765625, -0.675781, 0.0527344, 
+  -1.40625, -1.67188, -1.125, -0.5, -1.03906, 0.195312, -0.8125, -0.527344, -1.04688, -0.832031, 
+  -0.492188, -1.27344, -0.339844, -1.00781, -2.21875, -0.404297, -1.34375, -0.609375, -1.72656, -0.886719, 
+  -1.55469, -0.617188, -1.00781, -1.48438, -2.40625, 0.492188, -1.29688, -0.0213623, -1.67969, -1.99219, 
+  -0.910156, -0.871094, -0.169922, -0.617188, -1.71875, -0.605469, -0.613281, -0.757812, -0.890625, 0.691406, 
+  -0.429688, -1.14844, -0.945312, -0.324219, -0.816406, -1.28906, -0.613281, -1.88281, -0.953125, -0.738281, 
+  -1.32031, 0.0405273, -1.64844, -0.271484, -0.570312, -0.582031, -1.04688, -1.07031, -0.613281, -0.730469, 
+  -0.194336, -0.757812, -0.507812, -0.355469, -1.05469, 0.40625, -0.546875, -0.175781, -1.23438, -1.09375, 
+  0.0157471, -0.515625, -0.550781, -0.757812, -2.17188, -0.648438, -0.996094, -0.351562, -0.601562, -0.605469, 
+  -0.10498, -1.02344, 0.349609, -0.492188, -0.470703, -0.404297, 0.498047, -0.78125, 0.386719, -0.746094, 
+  ...,
+  0.152344, -0.800781, -1.57812, -0.71875, -0.490234, -0.0380859, 1.07031, 1.14844, 1.17188, 0.574219, 
+  0.00479126, -0.628906, -1.41406, -1.75781, -1.11719, -0.0766602, 0.135742, -0.0649414, 0.5, 0.609375, 
+  0.984375, 1.53906, 1.32031, 0.480469, 0.265625, 0.972656, -0.101562, -0.24707, -0.714844, -0.910156, 
+  -0.322266, -1.44531, -1.73438, -0.367188, -1.61719, -1.89062, -0.890625, -1.07031, -1.41406, -1.79688, 
+  -1.46875, -1.46094, -1.08594, -1.40625, -0.710938, -1.125, -0.123535, -0.380859, -0.287109, -0.882812, 
+  -0.53125, -0.373047, -0.5625, 0.176758, 0.460938, -0.0576172, 0.609375, 0.535156, 0.308594, 1.32031, 
+  0.875, 0.135742, 0.601562, 0.119629, 0.835938, 0.255859, 1.09375, 1.375, 0.140625, 0.515625, 
+  1.29688, 0.515625, 0.867188, 0.0255127, 1., 1.42188, 0.136719, 0.992188, 0.792969, 1.61719, 
+  0.199219, 1.28125, 1.26562, 0.652344, 1.41406, 1.28906, 1.67188, 1.32031, 1.44531, 0.757812, 
+  1.32031, 1.09375, 1.25781, 1.67969, 1.25, 1.375, 0.660156, 1.95312, 1.34375, 0.404297, 
+])
+        0.92 real         0.12 user         0.15 sys
+            40222720  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                2967  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 333  involuntary context switches
+            86640128  peak memory footprint

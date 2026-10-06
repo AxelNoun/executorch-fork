@@ -38,14 +38,18 @@ def layer_unfused():
     ]
     return ops
 def layer_eager_hf():
-    """Variante `attn_implementation="eager"` de transformers : le softmax fait lui-même la montée en
-    fp32 (`softmax(..., dtype=float32)` → `_softmax` half_to_float), donc **trois** tenseurs de scores
-    par couche au lieu de quatre, et une seule mise à l'échelle (sur q). C'est le graphe des exports de
-    substitution mesurés en § 5 bis.2 ; le fichier du rapporteur a le cast fp32 explicite en plus."""
-    ops = [o for o in layer_unfused() if o[0] not in ("astype_qk32", "mul_k")]
+    """Variante `attn_implementation="eager"` de transformers, **telle qu'elle est réellement émise**
+    (dump : audit_22513/data/run10-upstream-v1.4.1/e11_dev_small_eager.instr.txt:172-195) : Addmm → out
+    tid 217, Multiply → out tid 217 à nouveau, Softmax(`precise: False`) → out tid 214, Addmm. Aucun
+    AsType autour du softmax : **deux** tenseurs de scores par couche, tous deux en bf16, contre quatre
+    dont deux en fp32 pour le fichier du rapporteur (§ 3.1). La mise à l'échelle est appliquée sur les
+    scores, pas sur q et k séparément."""
+    ops = [o for o in layer_unfused() if o[0] not in ("astype_qk32", "astype_w16", "mul_q", "mul_k")]
     i = [k for k, o in enumerate(ops) if o[0] == "addmm_qk"][0]
-    # le softmax consomme les scores bf16 et sort du fp32 (half_to_float)
-    ops[i + 1] = ("softmax_h2f", [("qk", S)], ("w32", S), 4 * S)
+    # multiply en place sur le tenseur de scores (même slot), puis softmax bf16 -> bf16
+    ops.insert(i + 1, ("mul_scores", [("qk", S)], ("qk", S), 2 * S))
+    j = [k for k, o in enumerate(ops) if o[0] == "softmax"][0]
+    ops[j] = ("softmax_bf16", [("qk", S)], ("w", S), 2 * S)
     return ops
 def layer_fused():
     ops = [o for o in layer_unfused() if o[0] not in ("mul_q","mul_k","addmm_qk","astype_qk32","softmax","astype_w16","addmm_wv")]
