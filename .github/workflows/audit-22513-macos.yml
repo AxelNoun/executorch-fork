@@ -51,6 +51,12 @@ jobs:
           - label: sm-fork-1.4.1
             repo: software-mansion-labs/executorch
             ref: "@ms/separate-backends-1.4.1"
+          # main contient la correction du rapporteur (#22932, seuil d'évaluation borné) et
+          # #23109 (libération d'un slot temporaire à sa dernière lecture). Vérification : ces
+          # deux correctifs suffisent-ils sur ses fichiers publiés, y compris le bf16 non recyclé ?
+          - label: upstream-main
+            repo: pytorch/executorch
+            ref: main
     name: ${{ matrix.label }}
     runs-on: ${{ inputs.runner || 'macos-26' }}
     timeout-minutes: 180
@@ -80,7 +86,7 @@ jobs:
       - name: Patches (P1, P3, P2 ou P2-smfork, P4)
         run: |
           set -eux
-          for p in P1-executor-runner-phys-footprint.diff P3-log-constants-copied-by-mlx.diff P4-executor-runner-mlx-limit-flags.diff; do
+          for p in P1-executor-runner-phys-footprint.diff P1-main-executor-runner-phys-footprint.diff P3-log-constants-copied-by-mlx.diff P4-executor-runner-mlx-limit-flags.diff P6-main-executor-runner-mlx-eval-threshold.diff; do
             if git apply --check "../audit/audit_22513/patches/$p"; then
               git apply "../audit/audit_22513/patches/$p"
             else
@@ -291,6 +297,26 @@ jobs:
           name: device-ptes-${{ github.run_number }}
           path: /tmp/device/*.pte
           if-no-files-found: warn
+
+      # E13 — les fichiers publiés du rapporteur sur le runtime courant. #22932 borne le graphe
+      # paresseux par un budget d'octets (clé eval_threshold_bytes, à 0 = désactivé par défaut)
+      # et #23109 libère un slot temporaire à sa dernière lecture. Question : le fichier bf16
+      # sans recyclage AOT (198 slots) en profite-t-il, ou son pic reste-t-il le volume entier ?
+      - name: E13 — fichiers du rapporteur sur main, seuil d'évaluation on/off
+        if: matrix.label == 'upstream-main'
+        continue-on-error: true
+        run: |
+          set -ux
+          for f in small tiny tiny_int8; do
+            for th in -1 536870912 268435456 67108864; do
+              /usr/bin/time -l $RUN --model_path $f.pte --method_name encode                 --mlx_eval_threshold_bytes $th 2>&1 | tee "e13_${f}_encode_th${th}.txt"
+            done
+            /usr/bin/time -l $RUN --model_path $f.pte --method_name decode --mlx_eval_threshold_bytes 536870912 2>&1 | tee "e13_${f}_decode_th536870912.txt"
+          done
+          # slots temporaires, pour relier le résultat à § 3.5
+          for f in small tiny tiny_int8; do
+            python -m executorch.backends.mlx.pte_inspector $f.pte --mlx-instructions 2>/dev/null | grep -E "MLX DELEGATE|Temp tensors" | tee -a e13_slots.txt || true
+          done
 
       # E9 : contrainte d'alignement (pointeur) et de longueur de newBufferWithBytesNoCopy.
       - name: E9 — newBufferWithBytesNoCopy
