@@ -1,15 +1,17 @@
 # Brouillon de commentaire — pytorch/executorch#22513 (close)
 
-**Version du 2026-10-06, après E13 (§ 5 bis.11).** La version précédente affirmait que `#22932` ne couvrait pas
-le `whisper_tiny_mlx_bf16.pte` publié. **C'était faux** : `#23109`, du rapporteur lui-même, traite exactement
-les plans AOT à un slot par instruction, et sur `main` ce fichier tombe de 830 à 571 Mio sans aucune option.
-Le 827 Mio mesuré au § 5 bis.10 porte sur un commit du fork antérieur de quelques heures à ce correctif.
-Le commentaire ci-dessous ne revendique donc plus rien : il apporte une confirmation chiffrée sur des fichiers
-qu'il n'a pas mesurés, et une question sur l'export.
-
-Décision à prendre avant de poster : est-ce que cela mérite de rouvrir un fil clos ? Le point 2 (export non
-fusionné) relève plutôt de `software-mansion/react-native-executorch`. Mon avis : poster le point 1 ici,
-court, et le point 2 là-bas.
+> **DÉCISION (2026-10-06) : ne pas poster sur #22513.** Le fil est clos, le correctif est du rapporteur,
+> et ce qui resterait à dire n'a pas sa place dans une issue de runtime :
+>
+> - La « confirmation » que `#22932` + `#23109` aident ses fichiers publiés n'apprend rien d'actionnable :
+>   il a mesuré le mécanisme sur iPhone 16, et la mise à jour du runtime le lui donnera sans qu'on le lui dise.
+> - Le schema shift (op_type 122) est une divergence délibérée de son fork, qu'il connaît.
+> - Le **seul** fait réellement nouveau est que le `tiny` qu'il a mesuré dans `#22932` (550,4 Mo de pic)
+>   n'est pas celui qu'il publie (869,9 Mo décimaux, soit 829,6 Mio) : ses artefacts HF sortent d'un pipeline
+>   plus ancien que ses exports de test. C'est une observation sur un produit, donc pour
+>   `software-mansion/react-native-executorch`, pas pour une issue ExecuTorch close.
+>
+> Le texte est conservé ci-dessous comme trace de ce qui aurait été dit et de ce qui l'appuie.
 
 ---
 
