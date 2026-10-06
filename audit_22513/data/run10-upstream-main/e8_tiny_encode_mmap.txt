@@ -1,0 +1,8 @@
+[MLXExecutor.h:918] MLX constants: 83 loaded, 0 copied by MLX (0 bytes resident twice)
+[start] rss 196.6 MiB, phys_footprint 146.8 MiB, lifetime_max 147.5 MiB
+[after load_program] rss 200.9 MiB, phys_footprint 150.9 MiB, lifetime_max 151.0 MiB
+[after load_method] rss 223.4 MiB, phys_footprint 151.9 MiB, lifetime_max 152.1 MiB
+  input 0: sizes=(480000,) scalar_type=6
+[after execute 1] rss 239.2 MiB, phys_footprint 594.5 MiB, lifetime_max 594.5 MiB outputs: [(1, 1500, 384)]
+[after execute 2] rss 243.9 MiB, phys_footprint 682.3 MiB, lifetime_max 684.5 MiB outputs: [(1, 1500, 384)]
+[after execute 3] rss 248.5 MiB, phys_footprint 700.3 MiB, lifetime_max 702.5 MiB outputs: [(1, 1500, 384)]

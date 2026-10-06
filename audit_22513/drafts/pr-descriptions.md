@@ -14,6 +14,9 @@ de mesure sur appareil. Les diffs sont dans `audit_22513/patches/` ; ils s'appli
 `executor_runner` prints timings but no memory counter, so the one number that matters for a GPU
 backend on Apple platforms — physical footprint — cannot be obtained from the repo's own runner.
 
+(Measured example of why it matters: on `main`, `whisper_tiny_mlx_bf16.pte` `encode` peaks at 571 MiB of
+footprint in a process whose max RSS is 50 MiB.)
+
 That gap is what made pytorch/executorch#22513 hard to read: the report compared whole-process RSS on
 macOS against `phys_footprint` on iOS. RSS counts the pages the CPU touched; `phys_footprint` adds the
 IOKit mappings, which is where Metal buffers live (`xnu/osfmk/kern/task.c`, `ledger_phys_footprint`),
@@ -51,7 +54,7 @@ This adds two flags to `executor_runner`, both routed through `LoadBackendOption
 the backend default when absent:
 
 - `--mlx_eval_threshold_bytes` (`eval_threshold_bytes`)
-- `--mlx_clear_cache_interval` (`clear_cache_interval`, which had no runner path either)
+- `--mlx_clear_cache_interval` (`clear_cache_interval`, which several example runners set in code but which no runner exposes as a flag)
 
 With P1's counters this makes the whole curve reproducible from the repo:
 
@@ -66,9 +69,9 @@ executor_runner --model_path encoder.pte --method_name encode --num_executions 5
 
 ## Avant d'ouvrir
 
-- Le test unitaire de lecture de clé n'existe dans aucun diff de `audit_22513/patches/` : à écrire pour
-  la PR 2 (un test qui charge une méthode avec la clé posée et vérifie que l'interpréteur la lit —
-  `Interpreter::accounting_calls()` sert déjà d'instrumentation de test dans `MLXInterpreter.h`).
+- Le test reste à écrire pour la PR 2. La lecture de la clé est déjà couverte en amont par
+  `backends/mlx/test/mlx_eval_threshold_test.cpp` (sa ligne 152 vérifie le défaut 0) ; ce qui ne l'est pas,
+  c'est le chemin `executor_runner` → `LoadBackendOptionsMap` → `init()`, et c'est lui que le test doit couvrir.
 - Vérifier que les deux diffs s'appliquent encore sur le `main` du jour (`git apply --check`).
 - Les deux PR touchent `examples/portable/executor_runner/executor_runner.cpp` : la seconde sera à
   rebaser sur la première si elles ne sont pas mergées dans l'ordre.

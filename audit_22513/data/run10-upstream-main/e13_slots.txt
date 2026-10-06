@@ -1,0 +1,12 @@
+MLX DELEGATE 0 (plan index 0)
+Temp tensors: 6
+MLX DELEGATE 1 (plan index 0)
+Temp tensors: 5
+MLX DELEGATE 0 (plan index 0)
+Temp tensors: 235
+MLX DELEGATE 1 (plan index 0)
+Temp tensors: 198
+MLX DELEGATE 0 (plan index 0)
+Temp tensors: 6
+MLX DELEGATE 1 (plan index 0)
+Temp tensors: 5

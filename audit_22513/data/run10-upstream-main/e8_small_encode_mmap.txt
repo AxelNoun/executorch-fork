@@ -1,0 +1,17 @@
+[MLXExecutor.h:918] MLX constants: 364 loaded, 0 copied by MLX (0 bytes resident twice)
+[MLXBackend.cpp:605] MLX execute failed: [scatter_add_axis] Axis 150 is out of bounds for array with 3 dimensions.
+[method.cpp:1534] CALL_DELEGATE execute failed at instruction 0: 0x1
+[start] rss 196.3 MiB, phys_footprint 144.8 MiB, lifetime_max 145.3 MiB
+[after load_program] rss 203.0 MiB, phys_footprint 151.0 MiB, lifetime_max 151.0 MiB
+[after load_method] rss 303.1 MiB, phys_footprint 156.5 MiB, lifetime_max 156.6 MiB
+  input 0: sizes=(480000,) scalar_type=6
+Traceback (most recent call last):
+  File "/Users/runner/work/executorch-fork/executorch-fork/executorch/../audit/audit_22513/ci/e8_mmap_runtime.py", line 60, in <module>
+    main()
+  File "/Users/runner/work/executorch-fork/executorch-fork/executorch/../audit/audit_22513/ci/e8_mmap_runtime.py", line 55, in main
+    outs = method.execute(inputs)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/executorch/runtime/__init__.py", line 147, in execute
+    return self._method(inputs)
+           ^^^^^^^^^^^^^^^^^^^^
+RuntimeError: method->execute() failed with error 0x1
